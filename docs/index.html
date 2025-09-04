@@ -155,15 +155,15 @@ body {
   </label>
   
   <label>
+    <input type="checkbox" id="hillshade" checked> Hillshade Effects
+  </label>
+  
+  <label>
     Terrain Source:
     <select id="terrain-source">
       <option value="mapterhorn">Mapterhorn (Terrarium)</option>
       <option value="gel">Gel (Mapbox)</option>
     </select>
-  </label>
-  
-  <label>
-    <input type="checkbox" id="hillshade" checked> Hillshade Effects
   </label>
 </div>
 
@@ -3025,8 +3025,39 @@ map.on('load', () => {
 // Control functionality
 document.getElementById('contours').addEventListener('change', function() {
   const visibility = this.checked ? 'visible' : 'none';
-  map.setLayoutProperty('contour-lines', 'visibility', visibility);
-  map.setLayoutProperty('contour-labels', 'visibility', visibility);
+  try {
+    // Check if map is loaded and contour layers exist before trying to set their visibility
+    if (!map || !map.isStyleLoaded()) {
+      console.warn('Map not ready for contour toggle');
+      return;
+    }
+    
+    const style = map.getStyle();
+    if (!style || !style.layers) {
+      console.warn('Map style not available for contour toggle');
+      return;
+    }
+    
+    const hasContourLines = style.layers.some(layer => layer.id === 'contour-lines');
+    const hasContourLabels = style.layers.some(layer => layer.id === 'contour-labels');
+    
+    if (hasContourLines) {
+      map.setLayoutProperty('contour-lines', 'visibility', visibility);
+      console.log(`Contour lines visibility set to: ${visibility}`);
+    } else {
+      console.warn('Contour lines layer not found');
+    }
+    
+    if (hasContourLabels) {
+      map.setLayoutProperty('contour-labels', 'visibility', visibility);
+      console.log(`Contour labels visibility set to: ${visibility}`);
+    } else {
+      console.warn('Contour labels layer not found');
+    }
+    
+  } catch (error) {
+    console.warn('Could not toggle contour layers:', error);
+  }
 });
 
 document.getElementById('terrain').addEventListener('change', function() {
