@@ -2481,6 +2481,256 @@ const style = {
                 "text-halo-width": 1
             }
         },
+        },
+        {
+            "id": "water_waterway_label",
+            "type": "symbol",
+            "source": "protomaps",
+            "source-layer": "water",
+            "minzoom": 13,
+            "filter": [
+                "in",
+                "kind",
+                "river",
+                "stream"
+            ],
+            "layout": {
+                "symbol-placement": "line",
+                "text-font": [
+                    "Noto Sans Italic"
+                ],
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:en"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-size": 12,
+                "text-letter-spacing": 0.2
+            },
+            "paint": {
+                "text-color": "#728dd4",
+                "text-halo-color": "#80deea",
+                "text-halo-width": 1
+            }
+        },
+        {
+            "id": "roads_labels_major",
+            "type": "symbol",
+            "source": "protomaps",
+            "source-layer": "roads",
+            "minzoom": 11,
+            "filter": [
+                "in",
+                "kind",
+                "highway",
+                "major_road"
+            ],
+            "layout": {
+                "symbol-sort-key": [
+                    "get",
+                    "min_zoom"
+                ],
+                "symbol-placement": "line",
+                "text-font": [
+                    "Noto Sans Regular"
+                ],
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:en"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-size": 12
+            },
+            "paint": {
+                "text-color": "#938a8d",
+                "text-halo-color": "#ffffff",
+                "text-halo-width": 1
+            }
+        },
+        {
+            "id": "pois",
+            "type": "symbol",
+            "source": "protomaps",
+            "source-layer": "pois",
+            "filter": [
+                "all",
+                [
+                    "in",
+                    [
+                        "get",
+                        "kind"
+                    ],
+                    [
+                        "literal",
+                        [
+                            "beach",
+                            "forest",
+                            "marina",
+                            "park",
+                            "peak",
+                            "zoo",
+                            "garden",
+                            "bench",
+                            "aerodrome",
+                            "station",
+                            "bus_stop",
+                            "ferry_terminal",
+                            "stadium",
+                            "university",
+                            "library",
+                            "school",
+                            "animal",
+                            "toilets",
+                            "drinking_water"
+                        ]
+                    ]
+                ],
+                [
+                    ">=",
+                    [
+                        "zoom"
+                    ],
+                    [
+                        "+",
+                        [
+                            "get",
+                            "min_zoom"
+                        ],
+                        0
+                    ]
+                ]
+            ],
+            "layout": {
+                "icon-image": [
+                    "match",
+                    [
+                        "get",
+                        "kind"
+                    ],
+                    "station",
+                    "train_station",
+                    [
+                        "get",
+                        "kind"
+                    ]
+                ],
+                "text-font": [
+                    "Noto Sans Regular"
+                ],
+                "text-justify": "auto",
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:en"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-size": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    17,
+                    10,
+                    19,
+                    16
+                ],
+                "text-max-width": 8,
+                "text-offset": [
+                    1.1,
+                    0
+                ],
+                "text-variable-anchor": [
+                    "left",
+                    "right"
+                ]
+            },
+            "paint": {
+                "text-color": [
+                    "case",
+                    [
+                        "in",
+                        [
+                            "get",
+                            "kind"
+                        ],
+                        [
+                            "literal",
+                            [
+                                "beach",
+                                "forest",
+                                "marina",
+                                "park",
+                                "peak",
+                                "zoo",
+                                "garden",
+                                "bench"
+                            ]
+                        ]
+                    ],
+                    "#20834D",
+                    [
+                        "in",
+                        [
+                            "get",
+                            "kind"
+                        ],
+                        [
+                            "literal",
+                            [
+                                "aerodrome",
+                                "station",
+                                "bus_stop",
+                                "ferry_terminal"
+                            ]
+                        ]
+                    ],
+                    "#315BCF",
+                    [
+                        "in",
+                        [
+                            "get",
+                            "kind"
+                        ],
+                        [
+                            "literal",
+                            [
+                                "stadium",
+                                "university",
+                                "library",
+                                "school",
+                                "animal",
+                                "toilets",
+                                "drinking_water"
+                            ]
+                        ]
+                    ],
+                    "#6A5B8F",
+                    "#e2dfda"
+                ],
+                "text-halo-color": "#e2dfda",
+                "text-halo-width": 1
+            }
+        },
         {
             "id": "places_locality",
             "type": "symbol",
