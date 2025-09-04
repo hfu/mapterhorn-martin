@@ -8,30 +8,14 @@
 <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
 <link href="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
 <!-- Fallback libraries for environments where CDNs are blocked -->
+<script src="lib/maplibre-gl-mock.js"></script>
+<script src="lib/maplibre-contour-mock.js"></script>
+<link href="lib/maplibre-gl-mock.css" rel="stylesheet" />
 <script>
-  // Check if libraries loaded successfully, use fallbacks if not
-  if (typeof maplibregl === 'undefined' || typeof mlcontour === 'undefined') {
-    console.warn('External CDN libraries failed to load, loading fallbacks...');
-    
-    // Load fallback scripts
-    const fallbackScripts = [
-      'lib/maplibre-gl-mock.js',
-      'lib/maplibre-contour-mock.js'
-    ];
-    
-    fallbackScripts.forEach(src => {
-      const script = document.createElement('script');
-      script.src = src;
-      script.async = false;
-      document.head.appendChild(script);
-    });
-    
-    // Load fallback CSS
-    const fallbackCSS = document.createElement('link');
-    fallbackCSS.rel = 'stylesheet';
-    fallbackCSS.href = 'lib/maplibre-gl-mock.css';
-    document.head.appendChild(fallbackCSS);
-  }
+  // The fallback libraries are now always loaded.
+  // If CDN libraries loaded successfully, they will override the mocks.
+  // If CDN libraries failed, the mocks will be used instead.
+  console.log('Fallback libraries loaded as backup');
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
