@@ -47,6 +47,15 @@ body {
 #terrain-controls input[type="checkbox"] {
   margin-right: 8px;
 }
+#terrain-controls select {
+  margin-left: 10px;
+  padding: 4px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 3px;
+  font-size: 12px;
+}
 #terrain-controls button {
   margin: 5px 5px 0 0;
   padding: 8px 12px;
@@ -78,7 +87,15 @@ body {
 <div id="map"></div>
 
 <div id="terrain-controls">
-  <h4>🏔️ Mapterhorn Terrain</h4>
+  <h4>🏔️ Terrain Visualization</h4>
+  
+  <label>
+    Terrain Source:
+    <select id="terrain-source" style="margin-left: 10px; padding: 4px; background: #333; color: #fff; border: 1px solid #555; border-radius: 3px;">
+      <option value="mapterhorn">Mapterhorn (Terrarium)</option>
+      <option value="gel">Gel (Mapbox)</option>
+    </select>
+  </label>
   
   <label>
     <input type="checkbox" id="hillshade" checked> Hillshade Effects
@@ -97,8 +114,8 @@ body {
 </div>
 
 <div id="info-panel">
-  <strong>Data Source:</strong> Mapterhorn Project<br>
-  <strong>Encoding:</strong> Terrarium<br>
+  <strong>Data Source:</strong> <span id="current-source">Mapterhorn Project</span><br>
+  <strong>Encoding:</strong> <span id="current-encoding">Terrarium</span><br>
   <strong>Tile Size:</strong> 512px<br>
   <strong>Technology:</strong> MapLibre GL JS + WebGL<br>
   <br>
@@ -126,6 +143,18 @@ const style = {
             "url": "https://tunnel.optgeo.org/martin/mapterhorn",
             "tileSize": 512,
             "encoding": "terrarium"
+        },
+        "gel-terrain": {
+            "type": "raster-dem",
+            "url": "https://tunnel.optgeo.org/martin/gel",
+            "tileSize": 512,
+            "encoding": "mapbox"
+        },
+        "gel-hillshade": {
+            "type": "raster-dem",
+            "url": "https://tunnel.optgeo.org/martin/gel",
+            "tileSize": 512,
+            "encoding": "mapbox"
         }
     },
     "terrain": {
@@ -287,8 +316,9 @@ map.addControl(new maplibregl.GlobeControl());
 
 // Enable terrain when map loads
 map.on('load', () => {
+    const source = terrainSources[currentTerrainSource];
     map.setTerrain({
-        source: 'mapterhorn-terrain',
+        source: source.terrain,
         exaggeration: 1.0
     });
 });
@@ -296,10 +326,82 @@ map.on('load', () => {
 // Terrain control functionality
 const hillshadeCheckbox = document.getElementById('hillshade');
 const terrain3dCheckbox = document.getElementById('terrain-3d');
+const terrainSourceSelect = document.getElementById('terrain-source');
+const currentSourceSpan = document.getElementById('current-source');
+const currentEncodingSpan = document.getElementById('current-encoding');
 const resetViewButton = document.getElementById('reset-view');
 const flyToMatterhornButton = document.getElementById('fly-to-matterhorn');
 const zermattViewButton = document.getElementById('zermatt-view');
 const glacierViewButton = document.getElementById('glacier-view');
+
+// Current active terrain source
+let currentTerrainSource = 'mapterhorn';
+
+// Terrain source configuration
+const terrainSources = {
+    mapterhorn: {
+        terrain: 'mapterhorn-terrain',
+        hillshade: 'mapterhorn-hillshade',
+        displayName: 'Mapterhorn Project',
+        encoding: 'Terrarium'
+    },
+    gel: {
+        terrain: 'gel-terrain',
+        hillshade: 'gel-hillshade',
+        displayName: 'Gel Project',
+        encoding: 'Mapbox'
+    }
+};
+
+// Function to update terrain source
+function updateTerrainSource(sourceKey) {
+    const source = terrainSources[sourceKey];
+    if (!source) return;
+    
+    currentTerrainSource = sourceKey;
+    
+    // Update terrain if 3D is enabled
+    if (terrain3dCheckbox.checked) {
+        map.setTerrain({ source: source.terrain, exaggeration: 1.0 });
+    }
+    
+    // Update hillshade source
+    map.getStyle().layers.forEach(layer => {
+        if (layer.id === 'hillshade') {
+            map.removeLayer('hillshade');
+        }
+    });
+    
+    // Re-add hillshade layer with new source
+    map.addLayer({
+        "id": "hillshade",
+        "type": "hillshade",
+        "source": source.hillshade,
+        "paint": {
+            "hillshade-shadow-color": "#473B24",
+            "hillshade-highlight-color": "#ffffff",
+            "hillshade-accent-color": "#5d4a1f",
+            "hillshade-illumination-direction": 315,
+            "hillshade-illumination-anchor": "map",
+            "hillshade-exaggeration": 0.8
+        }
+    }, 'earth'); // Insert before earth layer
+    
+    // Update visibility based on checkbox state
+    const visibility = hillshadeCheckbox.checked ? 'visible' : 'none';
+    map.setLayoutProperty('hillshade', 'visibility', visibility);
+    
+    // Update info panel
+    currentSourceSpan.textContent = source.displayName;
+    currentEncodingSpan.textContent = source.encoding;
+    
+    console.log(`Switched to ${source.displayName} (${source.encoding} encoding)`);
+}
+
+// Terrain source selector
+terrainSourceSelect.addEventListener('change', (e) => {
+    updateTerrainSource(e.target.value);
+});
 
 // Hillshade toggle
 hillshadeCheckbox.addEventListener('change', (e) => {
@@ -310,7 +412,8 @@ hillshadeCheckbox.addEventListener('change', (e) => {
 // 3D terrain toggle
 terrain3dCheckbox.addEventListener('change', (e) => {
     if (e.target.checked) {
-        map.setTerrain({ source: 'mapterhorn-terrain', exaggeration: 1.0 });
+        const source = terrainSources[currentTerrainSource];
+        map.setTerrain({ source: source.terrain, exaggeration: 1.0 });
     } else {
         map.setTerrain(null);
     }
@@ -373,9 +476,9 @@ glacierViewButton.addEventListener('click', () => {
 });
 
 // Log terrain configuration
-console.log('Mapterhorn Terrain Visualization initialized');
-console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-console.log('Features: 3D terrain, hillshade, interactive controls');
+console.log('Terrain Visualization initialized');
+console.log('Available sources: Mapterhorn (Terrarium), Gel (Mapbox)');
+console.log('Features: 3D terrain, hillshade, interactive controls, source switching');
 
 </script>
 </body>
