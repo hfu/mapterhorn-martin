@@ -59,7 +59,75 @@ body {
 .control-row button:hover {
   background: #5F9EA0;
 }
-
+#terrain-controls label {
+  display: block;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+#terrain-controls input[type="checkbox"] {
+  margin-right: 8px;
+}
+#properties-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 350px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.9);
+  border-left: 1px solid #ccc;
+  overflow-y: auto;
+  padding: 15px;
+  box-sizing: border-box;
+  display: none;
+  z-index: 1000;
+}
+#properties-panel h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 16px;
+}
+.feature-item {
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+.feature-header {
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+}
+.feature-header:hover {
+  background: #eee;
+}
+.feature-properties {
+  padding: 10px 12px;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.feature-properties.collapsed {
+  display: none;
+}
+#close-panel {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+}
+#close-panel:hover {
+  color: #000;
+}
 </style>
 </head>
 <body>
@@ -86,12 +154,22 @@ body {
     <button id="toggle-terrain">Toggle</button>
   </div>
   
+  <label>
+    <input type="checkbox" id="hillshade" checked> Hillshade Effects
+  </label>
+  
   <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
     <p style="font-size: 12px; color: #999;">
       <em>Matterhorn region with live contour generation<br>
       from Mapterhorn terrain tiles in meters</em>
     </p>
   </div>
+</div>
+
+<div id="properties-panel">
+  <button id="close-panel">&times;</button>
+  <h3>Feature Properties</h3>
+  <div id="properties-content"></div>
 </div>
 
 <script>
@@ -108,152 +186,242 @@ var demSource = new mlcontour.DemSource({
 // Register the contour protocol with maplibre
 demSource.setupMaplibre(maplibregl);
 
-// Initialize the map centered on Matterhorn
-var map = new maplibregl.Map({
-  container: "map",
-  zoom: 12,
-  center: [7.7461, 46.0382], // Matterhorn coordinates
-  pitch: 60,
-  bearing: 0,
-  hash: true,
-  style: {
-    version: 8,
-    glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-    sources: {
-      dem: {
-        type: "raster-dem",
-        encoding: "terrarium",
-        tiles: [demSource.sharedDemProtocolUrl], // share cached DEM tiles
-        maxzoom: 12,
-        tileSize: 512
-      },
-      contours: {
-        type: "vector",
-        tiles: [
-          demSource.contourProtocolUrl({
-            // Keep in meters (multiplier: 1)
-            multiplier: 1,
-            thresholds: {
-              // zoom: [minor, major] intervals in meters
-              10: [100, 500],
-              11: [50, 250],
-              12: [25, 100],
-              13: [10, 50],
-              14: [5, 25],
-              15: [2, 10]
-            },
-            elevationKey: "ele",
-            levelKey: "level",
-            contourLayer: "contours"
-          })
-        ],
-        maxzoom: 15
-      },
-      // Basic vector tiles for landcover (to position contours above)
-      "openmaptiles": {
-        type: "vector",
-        url: "https://demotiles.maplibre.org/tiles/tiles.json"
-      }
+// Mapterhorn terrain style configuration
+const style = {
+    "version": 8,
+    "sources": {
+        "protomaps": {
+            "type": "vector",
+            "attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> © <a href=\"https://openstreetmap.org\">OpenStreetMap</a>",
+            "url": "https://tunnel.optgeo.org/martin/protomaps-basemap"
+        },
+        "mapterhorn-terrain": {
+            "type": "raster-dem",
+            "url": "https://tunnel.optgeo.org/martin/mapterhorn",
+            "tileSize": 512,
+            "encoding": "terrarium"
+        },
+        "dem": {
+            "type": "raster-dem",
+            "encoding": "terrarium",
+            "tiles": [demSource.sharedDemProtocolUrl], // share cached DEM tiles
+            "maxzoom": 12,
+            "tileSize": 512
+        },
+        "contours": {
+            "type": "vector",
+            "tiles": [
+                demSource.contourProtocolUrl({
+                    // Keep in meters (multiplier: 1)
+                    multiplier: 1,
+                    thresholds: {
+                        // zoom: [minor, major] intervals in meters
+                        10: [100, 500],
+                        11: [50, 250],
+                        12: [25, 100],
+                        13: [10, 50],
+                        14: [5, 25],
+                        15: [2, 10]
+                    },
+                    elevationKey: "ele",
+                    levelKey: "level",
+                    contourLayer: "contours"
+                })
+            ],
+            "maxzoom": 15
+        }
     },
-    layers: [
-      // Base landcover layer
-      {
-        id: "landcover",
-        type: "fill",
-        source: "openmaptiles",
-        "source-layer": "landcover",
-        paint: {
-          "fill-color": "#f2f0e6",
-          "fill-opacity": 0.3
-        }
-      },
-      // Hillshade for terrain relief
-      {
-        id: "hills",
-        type: "hillshade",
-        source: "dem",
-        paint: {
-          "hillshade-exaggeration": 0.8,
-          "hillshade-shadow-color": "#5a5a5a",
-          "hillshade-highlight-color": "#ffffff",
-          "hillshade-accent-color": "#333333"
-        }
-      },
-      // Contour lines (positioned above landcover)
-      {
-        id: "contour-lines",
-        type: "line",
-        source: "contours",
-        "source-layer": "contours",
-        paint: {
-          "line-color": [
-            "case",
-            [">", ["get", "level"], 0],
-            "#8B4513", // major contours (brown)
-            "#D2691E"  // minor contours (lighter brown)
-          ],
-          "line-width": [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            10, ["case", [">", ["get", "level"], 0], 1.5, 0.8],
-            15, ["case", [">", ["get", "level"], 0], 2.5, 1.2]
-          ],
-          "line-opacity": 0.8
+    "terrain": {
+        "source": "mapterhorn-terrain",
+        "exaggeration": 1.0
+    },
+    "layers": [
+        {
+            "id": "background",
+            "type": "background",
+            "paint": {
+                "background-color": "#cccccc"
+            }
         },
-        layout: {
-          "line-join": "round",
-          "line-cap": "round"
-        }
-      },
-      // Contour labels
-      {
-        id: "contour-labels",
-        type: "symbol",
-        source: "contours",
-        "source-layer": "contours",
-        filter: [">", ["get", "level"], 0], // only label major contours
-        paint: {
-          "text-color": "#5D4E37",
-          "text-halo-color": "rgba(255,255,255,0.8)",
-          "text-halo-width": 2
+        {
+            "id": "hillshade",
+            "type": "hillshade",
+            "source": "mapterhorn-terrain",
+            "paint": {
+                "hillshade-shadow-color": "#473B24",
+                "hillshade-highlight-color": "#ffffff",
+                "hillshade-accent-color": "#5d4a1f",
+                "hillshade-illumination-direction": 315,
+                "hillshade-illumination-anchor": "map",
+                "hillshade-exaggeration": 0.8
+            }
         },
-        layout: {
-          "symbol-placement": "line",
-          "text-anchor": "center",
-          "text-size": [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            10, 10,
-            15, 14
-          ],
-          "text-field": [
-            "concat",
-            ["number-format", ["get", "ele"], {}],
-            "m"
-          ],
-          "text-font": ["Noto Sans Bold"],
-          "text-max-angle": 30,
-          "text-rotation-alignment": "map"
+        {
+            "id": "earth",
+            "type": "fill",
+            "filter": [
+                "==",
+                "$type",
+                "Polygon"
+            ],
+            "source": "protomaps",
+            "source-layer": "earth",
+            "paint": {
+                "fill-color": "#e2dfda"
+            }
+        },
+        {
+            "id": "landcover",
+            "type": "fill",
+            "source": "protomaps",
+            "source-layer": "landcover",
+            "paint": {
+                "fill-color": [
+                    "match",
+                    [
+                        "get",
+                        "kind"
+                    ],
+                    "grassland",
+                    "rgba(210, 239, 207, 1)",
+                    "barren",
+                    "rgba(255, 243, 215, 1)",
+                    "urban_area",
+                    "rgba(230, 230, 230, 1)",
+                    "farmland",
+                    "rgba(216, 239, 210, 1)",
+                    "glacier",
+                    "rgba(255, 255, 255, 1)",
+                    "scrub",
+                    "rgba(234, 239, 210, 1)",
+                    "rgba(196, 231, 210, 1)"
+                ],
+                "fill-opacity": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    5,
+                    1,
+                    7,
+                    0
+                ]
+            }
+        },
+        // Contour lines (positioned above landcover)
+        {
+            "id": "contour-lines",
+            "type": "line",
+            "source": "contours",
+            "source-layer": "contours",
+            "paint": {
+                "line-color": [
+                    "case",
+                    [">", ["get", "level"], 0],
+                    "#8B4513", // major contours (brown)
+                    "#D2691E"  // minor contours (lighter brown)
+                ],
+                "line-width": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10, ["case", [">", ["get", "level"], 0], 1.5, 0.8],
+                    15, ["case", [">", ["get", "level"], 0], 2.5, 1.2]
+                ],
+                "line-opacity": 0.8
+            },
+            "layout": {
+                "line-join": "round",
+                "line-cap": "round"
+            }
+        },
+        // Contour labels
+        {
+            "id": "contour-labels",
+            "type": "symbol",
+            "source": "contours",
+            "source-layer": "contours",
+            "filter": [">", ["get", "level"], 0], // only label major contours
+            "paint": {
+                "text-color": "#5D4E37",
+                "text-halo-color": "rgba(255,255,255,0.8)",
+                "text-halo-width": 2
+            },
+            "layout": {
+                "symbol-placement": "line",
+                "text-anchor": "center",
+                "text-size": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10, 10,
+                    15, 14
+                ],
+                "text-field": [
+                    "concat",
+                    ["number-format", ["get", "ele"], {}],
+                    "m"
+                ],
+                "text-font": ["Noto Sans Bold"],
+                "text-max-angle": 30,
+                "text-rotation-alignment": "map"
+            }
+        },
+        {
+            "id": "water",
+            "type": "fill",
+            "filter": [
+                "==",
+                "$type",
+                "Polygon"
+            ],
+            "source": "protomaps",
+            "source-layer": "water",
+            "paint": {
+                "fill-color": "#80deea"
+            }
         }
-      }
-    ]
-  }
+    ],
+    "sprite": "https://protomaps.github.io/basemaps-assets/sprites/v4/light",
+    "glyphs": "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
+};
+
+// Initialize map
+const map = new maplibregl.Map({
+    container: 'map',
+    style: style,
+    center: [7.7461, 46.0382], // Matterhorn coordinates
+    zoom: 12,
+    pitch: 60,
+    bearing: 0,
+    antialias: true,
+    hash: true
 });
 
-// Add 3D terrain once map loads
-map.on('load', function() {
-  map.setTerrain({
-    source: 'dem',
-    exaggeration: 1.5
-  });
-  
-  console.log('Mapterhorn Terrain Visualization with Contour Lines');
-  console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-  console.log('Contour generation: maplibre-contour library');
-  console.log('Encoding: Terrarium format');
-  console.log('Units: Meters');
+// Add controls
+map.addControl(new maplibregl.NavigationControl({
+    visualizePitch: true,
+    showZoom: true,
+    showCompass: true
+}));
+
+map.addControl(new maplibregl.GlobeControl());
+
+// Enable terrain when map loads
+map.on('load', () => {
+    map.setTerrain({
+        source: 'mapterhorn-terrain',
+        exaggeration: 1.0
+    });
+    
+    console.log('Mapterhorn Terrain Visualization with Contour Lines');
+    console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
+    console.log('Contour generation: maplibre-contour library');
+    console.log('Encoding: Terrarium format');
+    console.log('Units: Meters');
 });
 
 // Control button functionality
@@ -286,13 +454,75 @@ document.getElementById('toggle-terrain').addEventListener('click', function() {
     this.textContent = 'Enable';
   } else {
     map.setTerrain({
-      source: 'dem',
+      source: 'mapterhorn-terrain',
       exaggeration: 1.5
     });
     this.textContent = 'Disable';
   }
 });
-</script>
 
+// Hillshade toggle
+const hillshadeCheckbox = document.getElementById('hillshade');
+hillshadeCheckbox.addEventListener('change', (e) => {
+    const visibility = e.target.checked ? 'visible' : 'none';
+    map.setLayoutProperty('hillshade', 'visibility', visibility);
+});
+
+// Property display functionality
+const propertiesPanel = document.getElementById('properties-panel');
+const propertiesContent = document.getElementById('properties-content');
+const closeButton = document.getElementById('close-panel');
+
+// Close panel functionality
+closeButton.addEventListener('click', () => {
+  propertiesPanel.style.display = 'none';
+});
+
+// Map click handler for feature properties
+map.on('click', (e) => {
+  const features = map.queryRenderedFeatures(e.point);
+  
+  if (features.length > 0) {
+    displayFeatureProperties(features);
+    propertiesPanel.style.display = 'block';
+  }
+});
+
+function displayFeatureProperties(features) {
+  propertiesContent.innerHTML = '';
+  
+  features.forEach((feature, index) => {
+    const featureDiv = document.createElement('div');
+    featureDiv.className = 'feature-item';
+    
+    // Feature header
+    const header = document.createElement('div');
+    header.className = 'feature-header';
+    const layerName = feature.layer ? feature.layer.id : 'Unknown Layer';
+    const featureType = feature.geometry ? feature.geometry.type : 'Unknown';
+    header.textContent = `${layerName} (${featureType})`;
+    
+    // Properties content
+    const propsDiv = document.createElement('div');
+    propsDiv.className = 'feature-properties';
+    propsDiv.textContent = JSON.stringify(feature.properties, null, 2);
+    
+    // Toggle functionality
+    header.addEventListener('click', () => {
+      propsDiv.classList.toggle('collapsed');
+    });
+    
+    featureDiv.appendChild(header);
+    featureDiv.appendChild(propsDiv);
+    propertiesContent.appendChild(featureDiv);
+  });
+}
+
+// Log terrain configuration
+console.log('Mapterhorn Terrain Visualization initialized');
+console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
+console.log('Features: 3D terrain, hillshade, contour lines, interactive controls');
+
+</script>
 </body>
 </html>
