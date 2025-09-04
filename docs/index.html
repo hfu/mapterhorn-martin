@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mapterhorn Martin</title>
 <script src="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
 <link href="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
 <style>
 body { 
@@ -34,6 +35,28 @@ body {
   margin: 0 0 15px 0;
   color: #87CEEB;
   font-size: 1.2em;
+}
+.control-row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.control-row label {
+  color: #ccc;
+  font-size: 12px;
+}
+.control-row button {
+  background: #87CEEB;
+  color: #000;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.control-row button:hover {
+  background: #5F9EA0;
 }
 #terrain-controls label {
   display: block;
@@ -134,25 +157,31 @@ body {
 #close-panel:hover {
   color: #000;
 }
-#info-panel {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.9);
-  border-radius: 10px;
-  padding: 15px;
-  max-width: 300px;
-  font-size: 12px;
-  color: #ccc;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
 </style>
 </head>
 <body>
 <div id="map"></div>
 
 <div id="terrain-controls">
-  <h4>🏔️ Mapterhorn Martin</h4>
+  <h4>🗺️ Terrain Features</h4>
+  <p><strong>Data Source:</strong> Mapterhorn Project</p>
+  <p><strong>Encoding:</strong> Terrarium</p>
+  <p><strong>Technology:</strong> MapLibre GL JS + maplibre-contour</p>
+  
+  <div class="control-row">
+    <label>Contour Lines</label>
+    <button id="toggle-contours">Toggle</button>
+  </div>
+  
+  <div class="control-row">
+    <label>Contour Labels</label>
+    <button id="toggle-labels">Toggle</button>
+  </div>
+  
+  <div class="control-row">
+    <label>Terrain (3D)</label>
+    <button id="toggle-terrain">Toggle</button>
+  </div>
   
   <label>
     Terrain Source:
@@ -166,10 +195,12 @@ body {
     <input type="checkbox" id="hillshade" checked> Hillshade Effects
   </label>
   
-  <label>
-    <input type="checkbox" id="terrain-3d" checked> 3D Terrain
-  </label>
-  
+  <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+    <p style="font-size: 12px; color: #999;">
+      <em>Matterhorn region with live contour generation<br>
+      from Mapterhorn terrain tiles in meters</em>
+    </p>
+  </div>
 </div>
 
 <div id="properties-panel">
@@ -179,6 +210,19 @@ body {
 </div>
 
 <script>
+// Initialize maplibre-contour DemSource with Mapterhorn terrain tiles
+var demSource = new mlcontour.DemSource({
+  url: "https://tunnel.optgeo.org/martin/mapterhorn/{z}/{x}/{y}",
+  encoding: "terrarium",
+  maxzoom: 12,
+  worker: true, // offload contour computation to web worker
+  cacheSize: 100,
+  timeoutMs: 10000
+});
+
+// Register the contour protocol with maplibre
+demSource.setupMaplibre(maplibregl);
+
 // Mapterhorn terrain style configuration
 const style = {
     "version": 8,
@@ -199,6 +243,37 @@ const style = {
             "url": "https://tunnel.optgeo.org/martin/mapterhorn",
             "tileSize": 512,
             "encoding": "terrarium"
+        },
+        "dem": {
+            "type": "raster-dem",
+        "dem": {
+            "type": "raster-dem",
+            "encoding": "terrarium",
+            "tiles": [demSource.sharedDemProtocolUrl], // share cached DEM tiles
+            "maxzoom": 12,
+            "tileSize": 512
+        },
+        "contours": {
+            "type": "vector",
+            "tiles": [
+                demSource.contourProtocolUrl({
+                    // Keep in meters (multiplier: 1)
+                    multiplier: 1,
+                    thresholds: {
+                        // zoom: [minor, major] intervals in meters
+                        10: [100, 500],
+                        11: [50, 250],
+                        12: [25, 100],
+                        13: [10, 50],
+                        14: [5, 25],
+                        15: [2, 10]
+                    },
+                    elevationKey: "ele",
+                    levelKey: "level",
+                    contourLayer: "contours"
+                })
+            ],
+            "maxzoom": 15
         },
         "gel-terrain": {
             "type": "raster-dem",
@@ -225,7 +300,6 @@ const style = {
                 "background-color": "#cccccc"
             }
         },
-
         {
             "id": "earth",
             "type": "fill",
@@ -281,327 +355,63 @@ const style = {
                 ]
             }
         },
+        // Contour lines (positioned above landcover)
         {
-            "id": "landuse_park",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "in",
-                "kind",
-                "national_park",
-                "park",
-                "cemetery",
-                "protected_area",
-                "nature_reserve",
-                "forest",
-                "golf_course",
-                "wood",
-                "nature_reserve",
-                "forest",
-                "scrub",
-                "grassland",
-                "grass",
-                "military",
-                "naval_base",
-                "airfield"
-            ],
+            "id": "contour-lines",
+            "type": "line",
+            "source": "contours",
+            "source-layer": "contours",
             "paint": {
-                "fill-opacity": [
-                    "interpolate",
-                    [
-                        "linear"
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    6,
-                    0,
-                    11,
-                    1
-                ],
-                "fill-color": [
+                "line-color": [
                     "case",
-                    [
-                        "in",
-                        [
-                            "get",
-                            "kind"
-                        ],
-                        [
-                            "literal",
-                            [
-                                "national_park",
-                                "park",
-                                "cemetery",
-                                "protected_area",
-                                "nature_reserve",
-                                "forest",
-                                "golf_course"
-                            ]
-                        ]
-                    ],
-                    "#9cd3b4",
-                    [
-                        "in",
-                        [
-                            "get",
-                            "kind"
-                        ],
-                        [
-                            "literal",
-                            [
-                                "wood",
-                                "nature_reserve",
-                                "forest"
-                            ]
-                        ]
-                    ],
-                    "#a0d9a0",
-                    [
-                        "in",
-                        [
-                            "get",
-                            "kind"
-                        ],
-                        [
-                            "literal",
-                            [
-                                "scrub",
-                                "grassland",
-                                "grass"
-                            ]
-                        ]
-                    ],
-                    "#99d2bb",
-                    [
-                        "in",
-                        [
-                            "get",
-                            "kind"
-                        ],
-                        [
-                            "literal",
-                            [
-                                "glacier"
-                            ]
-                        ]
-                    ],
-                    "#e7e7e7",
-                    [
-                        "in",
-                        [
-                            "get",
-                            "kind"
-                        ],
-                        [
-                            "literal",
-                            [
-                                "sand"
-                            ]
-                        ]
-                    ],
-                    "#e2e0d7",
-                    [
-                        "in",
-                        [
-                            "get",
-                            "kind"
-                        ],
-                        [
-                            "literal",
-                            [
-                                "military",
-                                "naval_base",
-                                "airfield"
-                            ]
-                        ]
-                    ],
-                    "#c6dcdc",
-                    "#e2dfda"
-                ]
-            }
-        },
-        {
-            "id": "landuse_urban_green",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "in",
-                "kind",
-                "allotments",
-                "village_green",
-                "playground"
-            ],
-            "paint": {
-                "fill-color": "#9cd3b4",
-                "fill-opacity": 0.7
-            }
-        },
-        {
-            "id": "landuse_hospital",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "==",
-                "kind",
-                "hospital"
-            ],
-            "paint": {
-                "fill-color": "#e4dad9"
-            }
-        },
-        {
-            "id": "landuse_industrial",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "==",
-                "kind",
-                "industrial"
-            ],
-            "paint": {
-                "fill-color": "#d1dde1"
-            }
-        },
-        {
-            "id": "landuse_school",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "in",
-                "kind",
-                "school",
-                "university",
-                "college"
-            ],
-            "paint": {
-                "fill-color": "#e4ded7"
-            }
-        },
-        {
-            "id": "landuse_beach",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "in",
-                "kind",
-                "beach"
-            ],
-            "paint": {
-                "fill-color": "#e8e4d0"
-            }
-        },
-        {
-            "id": "landuse_zoo",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "in",
-                "kind",
-                "zoo"
-            ],
-            "paint": {
-                "fill-color": "#c6dcdc"
-            }
-        },
-        {
-            "id": "landuse_aerodrome",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "in",
-                "kind",
-                "aerodrome"
-            ],
-            "paint": {
-                "fill-color": "#dadbdf"
-            }
-        },
-        {
-            "id": "roads_runway",
-            "type": "line",
-            "source": "protomaps",
-            "source-layer": "roads",
-            "filter": [
-                "==",
-                "kind_detail",
-                "runway"
-            ],
-            "paint": {
-                "line-color": "#e9e9ed",
+                    [">", ["get", "level"], 0],
+                    "#8B4513", // major contours (brown)
+                    "#D2691E"  // minor contours (lighter brown)
+                ],
                 "line-width": [
                     "interpolate",
-                    [
-                        "exponential",
-                        1.6
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    10,
-                    0,
-                    12,
-                    4,
-                    18,
-                    30
-                ]
+                    ["linear"],
+                    ["zoom"],
+                    10, ["case", [">", ["get", "level"], 0], 1.5, 0.8],
+                    15, ["case", [">", ["get", "level"], 0], 2.5, 1.2]
+                ],
+                "line-opacity": 0.8
+            },
+            "layout": {
+                "line-join": "round",
+                "line-cap": "round"
             }
         },
+        // Contour labels
         {
-            "id": "roads_taxiway",
-            "type": "line",
-            "source": "protomaps",
-            "source-layer": "roads",
-            "minzoom": 13,
-            "filter": [
-                "==",
-                "kind_detail",
-                "taxiway"
-            ],
+            "id": "contour-labels",
+            "type": "symbol",
+            "source": "contours",
+            "source-layer": "contours",
+            "filter": [">", ["get", "level"], 0], // only label major contours
             "paint": {
-                "line-color": "#e9e9ed",
-                "line-width": [
+                "text-color": "#5D4E37",
+                "text-halo-color": "rgba(255,255,255,0.8)",
+                "text-halo-width": 2
+            },
+            "layout": {
+                "symbol-placement": "line",
+                "text-anchor": "center",
+                "text-size": [
                     "interpolate",
-                    [
-                        "exponential",
-                        1.6
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    13,
-                    0,
-                    13.5,
-                    1,
-                    15,
-                    6
-                ]
-            }
-        },
-        {
-            "id": "landuse_runway",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "any",
-                [
-                    "in",
-                    "kind",
-                    "runway",
-                    "taxiway"
-                ]
-            ],
-            "paint": {
-                "fill-color": "#e9e9ed"
+                    ["linear"],
+                    ["zoom"],
+                    10, 10,
+                    15, 14
+                ],
+                "text-field": [
+                    "concat",
+                    ["number-format", ["get", "ele"], {}],
+                    "m"
+                ],
+                "text-font": ["Noto Sans Bold"],
+                "text-max-angle": 30,
+                "text-rotation-alignment": "map"
             }
         },
         {
@@ -3238,25 +3048,56 @@ map.on('load', () => {
         source: 'mapterhorn-terrain',
         exaggeration: 1.0
     });
+    
+    console.log('Mapterhorn Terrain Visualization with Contour Lines');
+    console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
+    console.log('Contour generation: maplibre-contour library');
+    console.log('Encoding: Terrarium format');
+    console.log('Units: Meters');
 });
 
-// Terrain control functionality
-const hillshadeCheckbox = document.getElementById('hillshade');
-const terrain3dCheckbox = document.getElementById('terrain-3d');
+// Control button functionality
+document.getElementById('toggle-contours').addEventListener('click', function() {
+  var visibility = map.getLayoutProperty('contour-lines', 'visibility');
+  if (visibility === 'visible' || visibility === undefined) {
+    map.setLayoutProperty('contour-lines', 'visibility', 'none');
+    this.textContent = 'Show';
+  } else {
+    map.setLayoutProperty('contour-lines', 'visibility', 'visible');
+    this.textContent = 'Hide';
+  }
+});
+
+document.getElementById('toggle-labels').addEventListener('click', function() {
+  var visibility = map.getLayoutProperty('contour-labels', 'visibility');
+  if (visibility === 'visible' || visibility === undefined) {
+    map.setLayoutProperty('contour-labels', 'visibility', 'none');
+    this.textContent = 'Show';
+  } else {
+    map.setLayoutProperty('contour-labels', 'visibility', 'visible');
+    this.textContent = 'Hide';
+  }
+});
+
+document.getElementById('toggle-terrain').addEventListener('click', function() {
+  var terrain = map.getTerrain();
+  if (terrain) {
+    map.setTerrain(null);
+    this.textContent = 'Enable';
+  } else {
+    map.setTerrain({
+      source: 'mapterhorn-terrain',
+      exaggeration: 1.5
+    });
+    this.textContent = 'Disable';
+  }
+});
 
 // Hillshade toggle
+const hillshadeCheckbox = document.getElementById('hillshade');
 hillshadeCheckbox.addEventListener('change', (e) => {
     const visibility = e.target.checked ? 'visible' : 'none';
     map.setLayoutProperty('hillshade', 'visibility', visibility);
-});
-
-// 3D terrain toggle
-terrain3dCheckbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-        map.setTerrain({ source: 'mapterhorn-terrain', exaggeration: 1.0 });
-    } else {
-        map.setTerrain(null);
-    }
 });
 
 // Property display functionality
@@ -3343,40 +3184,10 @@ terrainSourceSelect.addEventListener('change', (e) => {
     const visibility = document.getElementById('hillshade').checked ? 'visible' : 'none';
     map.setLayoutProperty('hillshade', 'visibility', visibility);
 });
-
-function displayFeatureProperties(features) {
-  propertiesContent.innerHTML = '';
-  
-  features.forEach((feature, index) => {
-    const featureDiv = document.createElement('div');
-    featureDiv.className = 'feature-item';
-    
-    // Feature header
-    const header = document.createElement('div');
-    header.className = 'feature-header';
-    const layerName = feature.layer ? feature.layer.id : 'Unknown Layer';
-    const featureType = feature.geometry ? feature.geometry.type : 'Unknown';
-    header.textContent = `${layerName} (${featureType})`;
-    
-    // Properties content
-    const propsDiv = document.createElement('div');
-    propsDiv.className = 'feature-properties';
-    propsDiv.textContent = JSON.stringify(feature.properties, null, 2);
-    
-    // Toggle functionality
-    header.addEventListener('click', () => {
-      propsDiv.classList.toggle('collapsed');
-    });
-    
-    featureDiv.appendChild(header);
-    featureDiv.appendChild(propsDiv);
-    propertiesContent.appendChild(featureDiv);
-  });
-}
 // Log terrain configuration
 console.log('Mapterhorn Terrain Visualization initialized');
 console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-console.log('Features: 3D terrain, hillshade, interactive controls');
+console.log('Features: 3D terrain, hillshade, contour lines, interactive controls');
 
 </script>
 </body>
