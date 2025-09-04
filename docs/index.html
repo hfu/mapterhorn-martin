@@ -36,28 +36,6 @@ body {
   color: #87CEEB;
   font-size: 1.2em;
 }
-.control-row {
-  margin: 10px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.control-row label {
-  color: #ccc;
-  font-size: 12px;
-}
-.control-row button {
-  background: #87CEEB;
-  color: #000;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 11px;
-}
-.control-row button:hover {
-  background: #5F9EA0;
-}
 #terrain-controls label {
   display: block;
   margin-bottom: 10px;
@@ -165,20 +143,16 @@ body {
 <div id="terrain-controls">
   <h4>⛰️ Mapterhorn Martin</h4>
   
-  <div class="control-row">
-    <label>Contour Lines</label>
-    <button id="toggle-contours">Toggle</button>
+  <label>
+    <input type="checkbox" id="contours" checked> Contour Lines
+  </label>
+  <div style="margin-left: 20px; font-size: 11px; color: #999;">
+    Note: Contours use Mapterhorn data only
   </div>
   
-  <div class="control-row">
-    <label>Contour Labels</label>
-    <button id="toggle-labels">Toggle</button>
-  </div>
-  
-  <div class="control-row">
-    <label>Terrain (3D)</label>
-    <button id="toggle-terrain">Toggle</button>
-  </div>
+  <label>
+    <input type="checkbox" id="terrain" checked> Terrain (3D)
+  </label>
   
   <label>
     Terrain Source:
@@ -353,21 +327,21 @@ const style = {
                 "line-color": [
                     "case",
                     [">", ["get", "level"], 0],
-                    "#8B4513", // major contours (brown)
-                    "#D2691E"  // minor contours (lighter brown)
+                    "#B8860B", // major contours (softer brown)
+                    "#DEB887"  // minor contours (lighter beige)
                 ],
                 "line-width": [
                     "interpolate",
                     ["linear"],
                     ["zoom"],
-                    10, ["case", [">", ["get", "level"], 0], 1.5, 0.8],
-                    15, ["case", [">", ["get", "level"], 0], 2.5, 1.2]
+                    10, ["case", [">", ["get", "level"], 0], 1.2, 0.6],
+                    15, ["case", [">", ["get", "level"], 0], 2.0, 1.0]
                 ],
-                "line-opacity": 0.8
+                "line-opacity": 0.6
             },
             "layout": {
-                "line-join": "round",
-                "line-cap": "round"
+                "line-join": "miter",
+                "line-cap": "butt"
             }
         },
         // Contour labels
@@ -3048,40 +3022,21 @@ map.on('load', () => {
     console.log('Units: Meters');
 });
 
-// Control button functionality
-document.getElementById('toggle-contours').addEventListener('click', function() {
-  var visibility = map.getLayoutProperty('contour-lines', 'visibility');
-  if (visibility === 'visible' || visibility === undefined) {
-    map.setLayoutProperty('contour-lines', 'visibility', 'none');
-    this.textContent = 'Show';
-  } else {
-    map.setLayoutProperty('contour-lines', 'visibility', 'visible');
-    this.textContent = 'Hide';
-  }
+// Control functionality
+document.getElementById('contours').addEventListener('change', function() {
+  const visibility = this.checked ? 'visible' : 'none';
+  map.setLayoutProperty('contour-lines', 'visibility', visibility);
+  map.setLayoutProperty('contour-labels', 'visibility', visibility);
 });
 
-document.getElementById('toggle-labels').addEventListener('click', function() {
-  var visibility = map.getLayoutProperty('contour-labels', 'visibility');
-  if (visibility === 'visible' || visibility === undefined) {
-    map.setLayoutProperty('contour-labels', 'visibility', 'none');
-    this.textContent = 'Show';
-  } else {
-    map.setLayoutProperty('contour-labels', 'visibility', 'visible');
-    this.textContent = 'Hide';
-  }
-});
-
-document.getElementById('toggle-terrain').addEventListener('click', function() {
-  var terrain = map.getTerrain();
-  if (terrain) {
-    map.setTerrain(null);
-    this.textContent = 'Enable';
-  } else {
+document.getElementById('terrain').addEventListener('change', function() {
+  if (this.checked) {
     map.setTerrain({
       source: 'mapterhorn-terrain',
-      exaggeration: 1.5
+      exaggeration: 1.0
     });
-    this.textContent = 'Disable';
+  } else {
+    map.setTerrain(null);
   }
 });
 
@@ -3149,8 +3104,11 @@ terrainSourceSelect.addEventListener('change', (e) => {
     const terrainSource = sourceKey === 'gel' ? 'gel-terrain' : 'mapterhorn-terrain';
     const hillshadeSource = sourceKey === 'gel' ? 'gel-hillshade' : 'mapterhorn-hillshade';
     
-    // Update terrain
-    map.setTerrain({ source: terrainSource, exaggeration: 1.0 });
+    // Update terrain if enabled
+    const terrainCheckbox = document.getElementById('terrain');
+    if (terrainCheckbox.checked) {
+        map.setTerrain({ source: terrainSource, exaggeration: 1.0 });
+    }
     
     // Update hillshade
     map.getStyle().layers.forEach(layer => {
