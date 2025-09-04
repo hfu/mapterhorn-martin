@@ -4,19 +4,19 @@ This directory contains the Web-based terrain visualization implementation using
 
 ## Files Overview
 
-### `index.html` (Main Demo)
-The primary demonstration page showcasing the Mapterhorn terrain visualization concept. Features:
-- Visual design demonstrating the terrain visualization interface
-- Technical specifications and feature overview
-- Ready for MapLibre GL JS integration when external libraries are accessible
-
-### `index-interactive.html` (Interactive Version)
+### `index.html` (Interactive Terrain Visualization)
 Full interactive implementation with MapLibre GL JS integration. Features:
-- Real-time 3D terrain rendering using Mapterhorn data
-- Interactive controls for terrain exaggeration
+- Real-time 3D terrain rendering using Mapterhorn data (true scale, no exaggeration)
 - Hillshade effects toggle
+- 3D terrain toggle
 - Multiple predefined viewpoints (Matterhorn summit, Zermatt, Glacier views)
 - Navigation controls
+
+### `index-interactive.html` (Legacy Interactive Version)
+Previous version of the interactive implementation with configurable terrain exaggeration.
+
+### `index-backup.html` (Original Demo Page)
+The original demonstration page with visual design concepts.
 
 ### `terrain-implementation.js` (Technical Implementation)
 Complete technical implementation module containing:
@@ -38,7 +38,7 @@ Complete technical implementation module containing:
 ## Features Implemented
 
 ### 🏔️ 3D Terrain Rendering
-- Real-time elevation display with configurable exaggeration (0.5x - 3.0x)
+- Real-time elevation display with true-to-scale terrain (1.0x exaggeration)
 - Smooth terrain transitions and WebGL-accelerated rendering
 - Interactive camera controls (pan, zoom, pitch, bearing)
 
