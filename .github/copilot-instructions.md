@@ -63,7 +63,7 @@
 
 ## ライセンス・出典
 
-- 本リポジトリのコードは MIT ライセンスとします
+- 本リポジトリのコードは CC0 1.0 Universal ライセンスとします
 - 地形タイルデータは Mapterhorn プロジェクト由来です。データ利用条件は[Mapterhorn公式](https://mapterhorn.com/data-access/)に準拠してください
 
 ---
