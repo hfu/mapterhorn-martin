@@ -299,6 +299,7 @@ function initializeMap(style) {
     document.getElementById('terrain-source').addEventListener('change', function() {
         const source = this.value;
         const terrainSource = source === 'gel' ? 'gel-terrain' : 'mapterhorn-terrain';
+        const hillshadeSource = source === 'gel' ? 'gel-hillshade' : 'mapterhorn-hillshade';
         
         // Update terrain source
         map.setTerrain({
@@ -315,11 +316,11 @@ function initializeMap(style) {
                 map.removeSource('hillshade');
             }
             
-            // Re-add hillshade with new source
+            // Re-add hillshade with new dedicated source
             map.addLayer({
                 "id": "hillshade",
                 "type": "hillshade",
-                "source": terrainSource,
+                "source": hillshadeSource,
                 "paint": {
                     "hillshade-shadow-color": "#473B24",
                     "hillshade-illumination-direction": 315,
