@@ -682,7 +682,7 @@
       "type": "fill",
       "source": "protomaps",
       "source-layer": "buildings",
-      "maxzoom": 14,
+      "maxzoom": 15,
       "filter": [
         "in",
         "kind",
