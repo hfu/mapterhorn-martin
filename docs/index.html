@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mapterhorn Terrain Visualization</title>
+<script src="https://unpkg.com/maplibre-gl@4.6.0/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
+<link href="https://unpkg.com/maplibre-gl@4.6.0/dist/maplibre-gl.css" rel="stylesheet" />
 <style>
 body { 
   margin: 0; 
@@ -14,39 +17,7 @@ body {
 #map { 
   width: 100vw; 
   height: 100vh; 
-  background: linear-gradient(180deg, #87CEEB 0%, #98FB98 40%, #8B4513 80%, #FFFFFF 100%);
   position: relative;
-  overflow: hidden;
-}
-#terrain-info {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  max-width: 600px;
-}
-#terrain-info h1 {
-  margin: 0 0 20px 0;
-  color: #fff;
-  font-size: 2.5em;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-#terrain-info h2 {
-  margin: 0 0 15px 0;
-  color: #87CEEB;
-  font-size: 1.5em;
-}
-#terrain-info p {
-  margin: 10px 0;
-  line-height: 1.6;
-  color: #ccc;
 }
 #terrain-controls {
   position: fixed;
@@ -59,127 +30,267 @@ body {
   font-size: 14px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
+  max-width: 300px;
 }
 #terrain-controls h4 {
   margin: 0 0 15px 0;
   color: #87CEEB;
   font-size: 1.2em;
 }
-.feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 20px 0;
-}
-.feature-list li {
+.control-row {
   margin: 10px 0;
-  padding: 10px;
-  background: rgba(135, 206, 235, 0.1);
-  border-left: 3px solid #87CEEB;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.control-row label {
+  color: #ccc;
+  font-size: 12px;
+}
+.control-row button {
+  background: #87CEEB;
+  color: #000;
+  border: none;
+  padding: 5px 10px;
   border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
 }
-.feature-list li strong {
-  color: #87CEEB;
+.control-row button:hover {
+  background: #5F9EA0;
 }
-.demo-note {
-  margin-top: 30px;
-  padding: 20px;
-  background: rgba(255, 193, 7, 0.1);
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  border-radius: 10px;
-  color: #ffc107;
-}
-.terrain-preview {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  width: 200px;
-  height: 150px;
-  background: linear-gradient(45deg, #8B4513 0%, #CD853F 50%, #FFFFFF 100%);
-  border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-.elevation-lines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.2) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.2) 75%, rgba(255,255,255,0.2) 76%, transparent 77%);
-}
+
 </style>
 </head>
 <body>
-<div id="map">
-  <div id="terrain-info">
-    <h1>🏔️ Mapterhorn Terrain Visualization</h1>
-    <h2>3D Terrain Display & Analysis System</h2>
-    
-    <p>This system demonstrates advanced terrain visualization using Mapterhorn elevation data from <code>tunnel.optgeo.org/martin/mapterhorn</code></p>
-    
-    <ul class="feature-list">
-      <li><strong>3D Terrain Rendering:</strong> Real-time elevation display with configurable exaggeration</li>
-      <li><strong>Hillshade Effects:</strong> Dynamic shadow and highlight rendering for terrain relief</li>
-      <li><strong>Contour Lines:</strong> Elevation contours for precise topographic analysis</li>
-      <li><strong>Terrarium Encoding:</strong> High-precision elevation data (tileSize: 512)</li>
-    </ul>
-    
-    <div class="demo-note">
-      <strong>📍 Focus Area:</strong> Matterhorn (7.7461°E, 46.0382°N)<br>
-      The implementation uses MapLibre GL JS with Mapterhorn terrain tiles for Web-based 3D visualization.
-    </div>
-  </div>
-  
-  <div class="terrain-preview">
-    <div class="elevation-lines"></div>
-  </div>
-</div>
+<div id="map"></div>
 
 <div id="terrain-controls">
   <h4>🗺️ Terrain Features</h4>
   <p><strong>Data Source:</strong> Mapterhorn Project</p>
   <p><strong>Encoding:</strong> Terrarium</p>
-  <p><strong>Tile Size:</strong> 512px</p>
-  <p><strong>Technology:</strong> MapLibre GL JS + WebGL</p>
+  <p><strong>Technology:</strong> MapLibre GL JS + maplibre-contour</p>
+  
+  <div class="control-row">
+    <label>Contour Lines</label>
+    <button id="toggle-contours">Toggle</button>
+  </div>
+  
+  <div class="control-row">
+    <label>Contour Labels</label>
+    <button id="toggle-labels">Toggle</button>
+  </div>
+  
+  <div class="control-row">
+    <label>Terrain (3D)</label>
+    <button id="toggle-terrain">Toggle</button>
+  </div>
   
   <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
     <p style="font-size: 12px; color: #999;">
-      <em>Ready for MapLibre GL JS integration<br>
-      with full 3D terrain capabilities</em>
+      <em>Matterhorn region with live contour generation<br>
+      from Mapterhorn terrain tiles in meters</em>
     </p>
   </div>
 </div>
 
 <script>
-// Terrain visualization demonstration
-console.log('Mapterhorn Terrain Visualization System');
-console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-console.log('Features: 3D terrain, hillshade, contours');
-console.log('Ready for MapLibre GL JS integration');
+// Initialize maplibre-contour DemSource with Mapterhorn terrain tiles
+var demSource = new mlcontour.DemSource({
+  url: "https://tunnel.optgeo.org/martin/mapterhorn/{z}/{x}/{y}.png",
+  encoding: "terrarium",
+  maxzoom: 12,
+  worker: true, // offload contour computation to web worker
+  cacheSize: 100,
+  timeoutMs: 10000
+});
 
-// When MapLibre GL JS is available, the following terrain configuration will be applied:
-const terrainConfig = {
-  source: {
-    type: "raster-dem",
-    url: "https://tunnel.optgeo.org/martin/mapterhorn",
-    tileSize: 512,
-    encoding: "terrarium"
-  },
-  terrain: {
-    exaggeration: 1.5
-  },
-  initialView: {
-    center: [7.7461, 46.0382], // Matterhorn
-    zoom: 12,
-    pitch: 60,
-    bearing: 0
+// Register the contour protocol with maplibre
+demSource.setupMaplibre(maplibregl);
+
+// Initialize the map centered on Matterhorn
+var map = new maplibregl.Map({
+  container: "map",
+  zoom: 12,
+  center: [7.7461, 46.0382], // Matterhorn coordinates
+  pitch: 60,
+  bearing: 0,
+  hash: true,
+  style: {
+    version: 8,
+    glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+    sources: {
+      dem: {
+        type: "raster-dem",
+        encoding: "terrarium",
+        tiles: [demSource.sharedDemProtocolUrl], // share cached DEM tiles
+        maxzoom: 12,
+        tileSize: 512
+      },
+      contours: {
+        type: "vector",
+        tiles: [
+          demSource.contourProtocolUrl({
+            // Keep in meters (multiplier: 1)
+            multiplier: 1,
+            thresholds: {
+              // zoom: [minor, major] intervals in meters
+              10: [100, 500],
+              11: [50, 250],
+              12: [25, 100],
+              13: [10, 50],
+              14: [5, 25],
+              15: [2, 10]
+            },
+            elevationKey: "ele",
+            levelKey: "level",
+            contourLayer: "contours"
+          })
+        ],
+        maxzoom: 15
+      },
+      // Basic vector tiles for landcover (to position contours above)
+      "openmaptiles": {
+        type: "vector",
+        url: "https://demotiles.maplibre.org/tiles/tiles.json"
+      }
+    },
+    layers: [
+      // Base landcover layer
+      {
+        id: "landcover",
+        type: "fill",
+        source: "openmaptiles",
+        "source-layer": "landcover",
+        paint: {
+          "fill-color": "#f2f0e6",
+          "fill-opacity": 0.3
+        }
+      },
+      // Hillshade for terrain relief
+      {
+        id: "hills",
+        type: "hillshade",
+        source: "dem",
+        paint: {
+          "hillshade-exaggeration": 0.8,
+          "hillshade-shadow-color": "#5a5a5a",
+          "hillshade-highlight-color": "#ffffff",
+          "hillshade-accent-color": "#333333"
+        }
+      },
+      // Contour lines (positioned above landcover)
+      {
+        id: "contour-lines",
+        type: "line",
+        source: "contours",
+        "source-layer": "contours",
+        paint: {
+          "line-color": [
+            "case",
+            [">", ["get", "level"], 0],
+            "#8B4513", // major contours (brown)
+            "#D2691E"  // minor contours (lighter brown)
+          ],
+          "line-width": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10, ["case", [">", ["get", "level"], 0], 1.5, 0.8],
+            15, ["case", [">", ["get", "level"], 0], 2.5, 1.2]
+          ],
+          "line-opacity": 0.8
+        },
+        layout: {
+          "line-join": "round",
+          "line-cap": "round"
+        }
+      },
+      // Contour labels
+      {
+        id: "contour-labels",
+        type: "symbol",
+        source: "contours",
+        "source-layer": "contours",
+        filter: [">", ["get", "level"], 0], // only label major contours
+        paint: {
+          "text-color": "#5D4E37",
+          "text-halo-color": "rgba(255,255,255,0.8)",
+          "text-halo-width": 2
+        },
+        layout: {
+          "symbol-placement": "line",
+          "text-anchor": "center",
+          "text-size": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10, 10,
+            15, 14
+          ],
+          "text-field": [
+            "concat",
+            ["number-format", ["get", "ele"], {}],
+            "m"
+          ],
+          "text-font": ["Noto Sans Bold"],
+          "text-max-angle": 30,
+          "text-rotation-alignment": "map"
+        }
+      }
+    ]
   }
-};
+});
 
-// Display configuration info
-document.addEventListener('DOMContentLoaded', () => {
-  console.table(terrainConfig);
+// Add 3D terrain once map loads
+map.on('load', function() {
+  map.setTerrain({
+    source: 'dem',
+    exaggeration: 1.5
+  });
+  
+  console.log('Mapterhorn Terrain Visualization with Contour Lines');
+  console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
+  console.log('Contour generation: maplibre-contour library');
+  console.log('Encoding: Terrarium format');
+  console.log('Units: Meters');
+});
+
+// Control button functionality
+document.getElementById('toggle-contours').addEventListener('click', function() {
+  var visibility = map.getLayoutProperty('contour-lines', 'visibility');
+  if (visibility === 'visible' || visibility === undefined) {
+    map.setLayoutProperty('contour-lines', 'visibility', 'none');
+    this.textContent = 'Show';
+  } else {
+    map.setLayoutProperty('contour-lines', 'visibility', 'visible');
+    this.textContent = 'Hide';
+  }
+});
+
+document.getElementById('toggle-labels').addEventListener('click', function() {
+  var visibility = map.getLayoutProperty('contour-labels', 'visibility');
+  if (visibility === 'visible' || visibility === undefined) {
+    map.setLayoutProperty('contour-labels', 'visibility', 'none');
+    this.textContent = 'Show';
+  } else {
+    map.setLayoutProperty('contour-labels', 'visibility', 'visible');
+    this.textContent = 'Hide';
+  }
+});
+
+document.getElementById('toggle-terrain').addEventListener('click', function() {
+  var terrain = map.getTerrain();
+  if (terrain) {
+    map.setTerrain(null);
+    this.textContent = 'Enable';
+  } else {
+    map.setTerrain({
+      source: 'dem',
+      exaggeration: 1.5
+    });
+    this.textContent = 'Disable';
+  }
 });
 </script>
 
