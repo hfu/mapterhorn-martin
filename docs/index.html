@@ -152,7 +152,7 @@ body {
 <div id="map"></div>
 
 <div id="terrain-controls">
-  <h4>🏔️ Terrain Visualization</h4>
+  <h4>🏔️ Mapterhorn Martin</h4>
   
   <label>
     Terrain Source:
@@ -3344,6 +3344,35 @@ terrainSourceSelect.addEventListener('change', (e) => {
     map.setLayoutProperty('hillshade', 'visibility', visibility);
 });
 
+function displayFeatureProperties(features) {
+  propertiesContent.innerHTML = '';
+  
+  features.forEach((feature, index) => {
+    const featureDiv = document.createElement('div');
+    featureDiv.className = 'feature-item';
+    
+    // Feature header
+    const header = document.createElement('div');
+    header.className = 'feature-header';
+    const layerName = feature.layer ? feature.layer.id : 'Unknown Layer';
+    const featureType = feature.geometry ? feature.geometry.type : 'Unknown';
+    header.textContent = `${layerName} (${featureType})`;
+    
+    // Properties content
+    const propsDiv = document.createElement('div');
+    propsDiv.className = 'feature-properties';
+    propsDiv.textContent = JSON.stringify(feature.properties, null, 2);
+    
+    // Toggle functionality
+    header.addEventListener('click', () => {
+      propsDiv.classList.toggle('collapsed');
+    });
+    
+    featureDiv.appendChild(header);
+    featureDiv.appendChild(propsDiv);
+    propertiesContent.appendChild(featureDiv);
+  });
+}
 // Log terrain configuration
 console.log('Mapterhorn Terrain Visualization initialized');
 console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
