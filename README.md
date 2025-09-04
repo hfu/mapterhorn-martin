@@ -1,6 +1,6 @@
 # mapterhorn-martin
 
-このリポジトリは、Mapterhorn プロジェクトと X-24B（Martin社開発の実験機）へのリスペクトを込めて作成されました。  
+このリポジトリは、Mapterhorn プロジェクトと X-24B（Martin社開発の実験機、および [unvt/x-24b](https://github.com/unvt/x-24b) プロジェクト）へのリスペクトを込めて作成されました。  
 三次元地形・陰影・等高線等の可視化デモを目指しています。
 
 ## 🏔️ プロジェクト概要
@@ -82,6 +82,8 @@ npx serve docs
 
 - **Mapterhorn プロジェクト**: 貴重な地形タイルデータの提供に感謝いたします
 - **X-24B (Flying Iron)**: Martin社開発の実験機で、スペースシャトル開発にも影響を与えました。本リポジトリ名はこれに由来します
+- **unvt/x-24b**: [Martin tile server](https://github.com/unvt/x-24b) による PMTiles ホスティングソリューションに敬意を表します
+- **MapLibre Martin**: 高性能なタイルサーバーとしての MapLibre Martin の貢献に感謝いたします
 - **オープンコミュニティ**: 地形可視化技術の発展に貢献するすべての開発者・研究者の皆様
 
 ## 🤝 コントリビューション
