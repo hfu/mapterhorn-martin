@@ -28,7 +28,8 @@
 ```
 mapterhorn-martin/
 ├── docs/           # GitHub Pages のコンテンツ (実装済み)
-│   └── index.html  # 完全な地形可視化アプリケーション
+│   ├── index.html  # 地形可視化アプリケーション (HTML構造)
+│   └── style.css   # アプリケーションのスタイリング (CSS)
 ├── .github/        # GitHub Actions 設定
 ├── LICENSE         # ライセンスファイル
 └── README.md       # このドキュメント
@@ -61,7 +62,7 @@ mapterhorn-martin/
 
 ### 実装済みアーキテクチャ
 
-- **シングルファイル構成**: `docs/index.html` にすべての機能を集約
+- **分離された構成**: HTML構造 (`docs/index.html`) とスタイリング (`docs/style.css`) を分離
 - **CDN 依存関係**: 外部ライブラリは CDN 経由で読み込み
 - **モジュラー設計**: 機能ごとに分離されたJavaScript関数
 - **レスポンシブ UI**: デスクトップ・モバイル対応
@@ -103,7 +104,7 @@ mapterhorn-martin/
 7. **Web Worker最適化**: 等高線計算の並列処理によるパフォーマンス向上
 
 **実装アーキテクチャ:**
-- シングルファイル構成 (`docs/index.html`)
+- HTML/CSS 分離構成 (`docs/index.html` + `docs/style.css`)
 - CDN ベースの依存関係管理
 - レスポンシブデザイン対応
 
