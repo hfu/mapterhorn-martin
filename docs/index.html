@@ -97,7 +97,7 @@ body {
 <script>
 // Initialize maplibre-contour DemSource with Mapterhorn terrain tiles
 var demSource = new mlcontour.DemSource({
-  url: "https://tunnel.optgeo.org/martin/mapterhorn/{z}/{x}/{y}.png",
+  url: "https://tunnel.optgeo.org/martin/mapterhorn/{z}/{x}/{y}",
   encoding: "terrarium",
   maxzoom: 12,
   worker: true, // offload contour computation to web worker
