@@ -260,99 +260,11 @@ class MapterhornTerrainControls {
         });
     }
 
-    // Add contour lines implementation
+    // Add contour lines (requires additional source)
     addContourLines() {
-        // Add contour lines source to the map
-        if (!this.map.getSource('mapterhorn-contours')) {
-            this.map.addSource('mapterhorn-contours', {
-                type: 'geojson',
-                data: {
-                    type: 'FeatureCollection',
-                    features: []
-                }
-            });
-        }
-
-        // Add contour lines layer
-        if (!this.map.getLayer('contour-lines')) {
-            this.map.addLayer({
-                id: 'contour-lines',
-                type: 'line',
-                source: 'mapterhorn-contours',
-                layout: {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                paint: {
-                    'line-color': '#8B4513',
-                    'line-width': [
-                        'case',
-                        ['==', ['get', 'major'], true], 1.5,
-                        0.8
-                    ],
-                    'line-opacity': 0.7
-                }
-            });
-        }
-
-        // Generate contour lines data
-        this.generateContourLines();
-        console.log('Contour lines added to map');
-    }
-
-    // Generate contour lines for Matterhorn area
-    generateContourLines() {
-        const centerLon = 7.7461;
-        const centerLat = 46.0382;
-        const features = [];
-        
-        // Generate contour lines at different elevations
-        const contourElevations = [1500, 2000, 2500, 3000, 3500, 4000, 4476]; // Matterhorn peak is 4478m
-        
-        contourElevations.forEach((elevation, index) => {
-            const isMajor = elevation % 500 === 0;
-            const radius = 0.01 + (index * 0.003); // Decreasing radius with elevation
-            const points = [];
-            
-            // Create circular contour approximation with terrain variation
-            for (let i = 0; i <= 64; i++) {
-                const angle = (i / 64) * 2 * Math.PI;
-                const offsetRadius = radius + (Math.sin(angle * 4) * 0.002); // Add some terrain variation
-                const lon = centerLon + offsetRadius * Math.cos(angle);
-                const lat = centerLat + offsetRadius * Math.sin(angle);
-                points.push([lon, lat]);
-            }
-            
-            features.push({
-                type: 'Feature',
-                properties: {
-                    elevation: elevation,
-                    major: isMajor
-                },
-                geometry: {
-                    type: 'LineString',
-                    coordinates: points
-                }
-            });
-        });
-        
-        // Update the GeoJSON source with generated contours
-        if (this.map.getSource('mapterhorn-contours')) {
-            this.map.getSource('mapterhorn-contours').setData({
-                type: 'FeatureCollection',
-                features: features
-            });
-        }
-        
-        console.log(`Generated ${features.length} contour lines for elevations: ${contourElevations.join(', ')}m`);
-    }
-
-    // Toggle contour lines visibility
-    toggleContourLines(visible) {
-        const visibility = visible ? 'visible' : 'none';
-        if (this.map.getLayer('contour-lines')) {
-            this.map.setLayoutProperty('contour-lines', 'visibility', visibility);
-        }
+        // This would require a separate contour line source
+        // Implementation depends on available contour data
+        console.log('Contour lines functionality ready for implementation');
     }
 }
 

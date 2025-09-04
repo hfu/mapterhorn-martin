@@ -97,10 +97,6 @@ body {
     <input type="checkbox" id="terrain-3d" checked> 3D Terrain
   </label>
   
-  <label>
-    <input type="checkbox" id="contour-lines"> Contour Lines
-  </label>
-  
   <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px;">
     <button id="reset-view">Reset View</button>
     <button id="fly-to-matterhorn">Matterhorn</button>
@@ -139,19 +135,6 @@ const style = {
             "url": "https://tunnel.optgeo.org/martin/mapterhorn",
             "tileSize": 512,
             "encoding": "terrarium"
-        },
-        "mapterhorn-contours": {
-            "type": "raster-dem",
-            "url": "https://tunnel.optgeo.org/martin/mapterhorn",
-            "tileSize": 512,
-            "encoding": "terrarium"
-        },
-        "mapterhorn-contours": {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": []
-            }
         }
     },
     "terrain": {
@@ -224,25 +207,6 @@ const style = {
             "paint": {
                 "fill-color": "#4a9eff",
                 "fill-opacity": 0.8
-            }
-        },
-        {
-            "id": "contour-lines",
-            "type": "line",
-            "source": "mapterhorn-contours",
-            "layout": {
-                "visibility": "none",
-                "line-join": "round",
-                "line-cap": "round"
-            },
-            "paint": {
-                "line-color": "#8B4513",
-                "line-width": [
-                    "case",
-                    ["==", ["get", "major"], true], 1.5,
-                    0.8
-                ],
-                "line-opacity": 0.7
             }
         },
         {
@@ -343,7 +307,6 @@ const exaggerationSlider = document.getElementById('exaggeration');
 const exaggerationValue = document.getElementById('exag-value');
 const hillshadeCheckbox = document.getElementById('hillshade');
 const terrain3dCheckbox = document.getElementById('terrain-3d');
-const contourCheckbox = document.getElementById('contour-lines');
 const resetViewButton = document.getElementById('reset-view');
 const flyToMatterhornButton = document.getElementById('fly-to-matterhorn');
 const zermattViewButton = document.getElementById('zermatt-view');
@@ -374,16 +337,6 @@ terrain3dCheckbox.addEventListener('change', (e) => {
     }
 });
 
-// Contour lines toggle
-contourCheckbox.addEventListener('change', (e) => {
-    const visibility = e.target.checked ? 'visible' : 'none';
-    map.setLayoutProperty('contour-lines', 'visibility', visibility);
-    
-    if (e.target.checked && !map.getSource('mapterhorn-contours').getData().features.length) {
-        generateContourLines();
-    }
-});
-
 // Predefined viewpoints
 const viewpoints = {
     default: {
@@ -411,53 +364,6 @@ const viewpoints = {
         bearing: 90
     }
 };
-
-// Generate contour lines function
-function generateContourLines() {
-    // For the Matterhorn area, create representative contour lines
-    // This is a simplified implementation using circular/elevation-based patterns
-    const centerLon = 7.7461;
-    const centerLat = 46.0382;
-    const features = [];
-    
-    // Generate contour lines at different elevations
-    const contourElevations = [1500, 2000, 2500, 3000, 3500, 4000, 4476]; // Matterhorn peak is 4478m
-    
-    contourElevations.forEach((elevation, index) => {
-        const isMajor = elevation % 500 === 0;
-        const radius = 0.01 + (index * 0.003); // Decreasing radius with elevation
-        const points = [];
-        
-        // Create circular contour approximation
-        for (let i = 0; i <= 64; i++) {
-            const angle = (i / 64) * 2 * Math.PI;
-            const offsetRadius = radius + (Math.sin(angle * 4) * 0.002); // Add some terrain variation
-            const lon = centerLon + offsetRadius * Math.cos(angle);
-            const lat = centerLat + offsetRadius * Math.sin(angle);
-            points.push([lon, lat]);
-        }
-        
-        features.push({
-            type: "Feature",
-            properties: {
-                elevation: elevation,
-                major: isMajor
-            },
-            geometry: {
-                type: "LineString",
-                coordinates: points
-            }
-        });
-    });
-    
-    // Update the GeoJSON source
-    map.getSource('mapterhorn-contours').setData({
-        type: "FeatureCollection",
-        features: features
-    });
-    
-    console.log(`Generated ${features.length} contour lines for elevations: ${contourElevations.join(', ')}m`);
-}
 
 // Navigation functions
 function flyToViewpoint(viewpoint) {
@@ -490,7 +396,7 @@ glacierViewButton.addEventListener('click', () => {
 // Log terrain configuration
 console.log('Mapterhorn Terrain Visualization initialized');
 console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-console.log('Features: 3D terrain, hillshade, contour lines, interactive controls');
+console.log('Features: 3D terrain, hillshade, interactive controls');
 
 </script>
 </body>

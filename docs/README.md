@@ -23,7 +23,6 @@ Complete technical implementation module containing:
 - MapLibre GL JS style configuration for Mapterhorn terrain
 - Terrain control classes and utilities
 - Predefined scenic viewpoints
-- **Contour lines generation and management functions** ✅ NEW
 - Modular code for integration
 
 ## Data Source
@@ -47,12 +46,6 @@ Complete technical implementation module containing:
 - Dynamic shadow and highlight rendering for terrain relief
 - Configurable illumination direction and intensity
 - Toggle visibility for comparison views
-
-### 📏 Contour Lines ✅ NEW
-- Elevation contour lines for precise topographic analysis
-- Multiple elevation levels: 1500m, 2000m, 2500m, 3000m, 3500m, 4000m, 4476m (Matterhorn summit)
-- Differentiated styling for major contours (every 500m)
-- GeoJSON-based implementation with toggle visibility control
 
 ### 📍 Interactive Navigation
 - **Reset View:** Default Matterhorn overview
