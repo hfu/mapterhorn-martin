@@ -202,19 +202,6 @@ const style = {
             "tileSize": 512,
             "encoding": "terrarium"
         },
-        "mapterhorn-hillshade": {
-            "type": "raster-dem",
-            "url": "https://tunnel.optgeo.org/martin/mapterhorn",
-            "tileSize": 512,
-            "encoding": "terrarium"
-        },
-        "dem": {
-            "type": "raster-dem",
-            "encoding": "terrarium",
-            "tiles": [demSource.sharedDemProtocolUrl], // share cached DEM tiles
-            "maxzoom": 12,
-            "tileSize": 512
-        },
         "contours": {
             "type": "vector",
             "tiles": [
@@ -238,12 +225,6 @@ const style = {
             "maxzoom": 15
         },
         "gel-terrain": {
-            "type": "raster-dem",
-            "url": "https://tunnel.optgeo.org/martin/gel",
-            "tileSize": 512,
-            "encoding": "mapbox"
-        },
-        "gel-hillshade": {
             "type": "raster-dem",
             "url": "https://tunnel.optgeo.org/martin/gel",
             "tileSize": 512,
@@ -469,7 +450,7 @@ const style = {
         {
             "id": "hillshade",
             "type": "hillshade",
-            "source": "mapterhorn-hillshade",
+            "source": "mapterhorn-terrain",
             "paint": {
                 "hillshade-shadow-color": "#473B24",
                 "hillshade-highlight-color": "#ffffff",
@@ -3133,7 +3114,7 @@ const terrainSourceSelect = document.getElementById('terrain-source');
 terrainSourceSelect.addEventListener('change', (e) => {
     const sourceKey = e.target.value;
     const terrainSource = sourceKey === 'gel' ? 'gel-terrain' : 'mapterhorn-terrain';
-    const hillshadeSource = sourceKey === 'gel' ? 'gel-hillshade' : 'mapterhorn-hillshade';
+    const hillshadeSource = sourceKey === 'gel' ? 'gel-terrain' : 'mapterhorn-terrain';
     
     // Update terrain if enabled
     const terrainCheckbox = document.getElementById('terrain');
