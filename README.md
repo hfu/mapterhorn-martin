@@ -63,7 +63,7 @@ mapterhorn-martin/
 ### 実装済みアーキテクチャ
 
 - **分離された構成**: HTML構造 (`docs/index.html`) とスタイリング (`docs/style.css`) を分離
-- **CDN 依存関係**: 外部ライブラリは CDN 経由で読み込み
+- **CDN 依存関係**: 外部ライブラリは jsDelivr CDN 経由で読み込み（unpkg.com から移行済み、fallback機構なし）
 - **モジュラー設計**: 機能ごとに分離されたJavaScript関数
 - **レスポンシブ UI**: デスクトップ・モバイル対応
 
@@ -103,9 +103,9 @@ mapterhorn-martin/
 6. **地物プロパティ表示**: クリックによる詳細情報表示
 7. **Web Worker最適化**: 等高線計算の並列処理によるパフォーマンス向上
 
-**実装アーキテクチャ:**
+**实装アーキテクチャ:**
 - HTML/CSS 分離構成 (`docs/index.html` + `docs/style.css`)
-- CDN ベースの依存関係管理
+- jsDelivr CDN ベースの依存関係管理（安定性向上、fallback機構なし）
 - レスポンシブデザイン対応
 
 ## 🏁 Getting Started

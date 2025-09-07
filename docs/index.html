@@ -4,19 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mapterhorn Martin</title>
-<script src="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
-<link href="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
-<!-- Fallback libraries for environments where CDNs are blocked -->
-<script src="lib/maplibre-gl-mock.js"></script>
-<script src="lib/maplibre-contour-mock.js"></script>
-<link href="lib/maplibre-gl-mock.css" rel="stylesheet" />
-<script>
-  // The fallback libraries are now always loaded.
-  // If CDN libraries loaded successfully, they will override the mocks.
-  // If CDN libraries failed, the mocks will be used instead.
-  console.log('Fallback libraries loaded as backup');
-</script>
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maplibre-contour@0.1.0/dist/index.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -171,13 +162,7 @@ fetch('style.json')
 })
 .catch(error => {
     console.error('Error loading style.json:', error);
-    // Fallback to a basic style if loading fails
-    const fallbackStyle = {
-        "version": 8,
-        "sources": {},
-        "layers": []
-    };
-    initializeMap(fallbackStyle);
+    throw error;
 });
 
 function initializeMap(style) {
