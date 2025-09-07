@@ -678,52 +678,6 @@
       }
     },
     {
-      "id": "buildings",
-      "type": "fill",
-      "source": "protomaps",
-      "source-layer": "buildings",
-      "maxzoom": 15,
-      "filter": [
-        "in",
-        "kind",
-        "building",
-        "building_part"
-      ],
-      "paint": {
-        "fill-color": "#D2B48C",
-        "fill-opacity": 0.5
-      }
-    },
-    {
-      "id": "buildings-3d",
-      "type": "fill-extrusion",
-      "source": "protomaps",
-      "source-layer": "buildings",
-      "minzoom": 15,
-      "filter": [
-        "in",
-        "kind",
-        "building",
-        "building_part"
-      ],
-      "paint": {
-        "fill-extrusion-color": "#D2B48C",
-        "fill-extrusion-height": [
-          "case",
-          ["has", "height"],
-          ["get", "height"],
-          6
-        ],
-        "fill-extrusion-base": [
-          "case",
-          ["has", "min_height"],
-          ["get", "min_height"],
-          0
-        ],
-        "fill-extrusion-opacity": 0.8
-      }
-    },
-    {
       "id": "roads_pier",
       "type": "line",
       "source": "protomaps",
@@ -1542,6 +1496,52 @@
             ]
           ]
         ]
+      }
+    },
+    {
+      "id": "buildings",
+      "type": "fill",
+      "source": "protomaps",
+      "source-layer": "buildings",
+      "maxzoom": 15,
+      "filter": [
+        "in",
+        "kind",
+        "building",
+        "building_part"
+      ],
+      "paint": {
+        "fill-color": "#D2B48C",
+        "fill-opacity": 0.5
+      }
+    },
+    {
+      "id": "buildings-3d",
+      "type": "fill-extrusion",
+      "source": "protomaps",
+      "source-layer": "buildings",
+      "minzoom": 15,
+      "filter": [
+        "in",
+        "kind",
+        "building",
+        "building_part"
+      ],
+      "paint": {
+        "fill-extrusion-color": "#D2B48C",
+        "fill-extrusion-height": [
+          "case",
+          ["has", "height"],
+          ["get", "height"],
+          6
+        ],
+        "fill-extrusion-base": [
+          "case",
+          ["has", "min_height"],
+          ["get", "min_height"],
+          0
+        ],
+        "fill-extrusion-opacity": 0.8
       }
     },
     {
