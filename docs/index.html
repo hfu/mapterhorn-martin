@@ -161,13 +161,7 @@ fetch('style.json')
 })
 .catch(error => {
     console.error('Error loading style.json:', error);
-    // Fallback to a basic style if loading fails
-    const fallbackStyle = {
-        "version": 8,
-        "sources": {},
-        "layers": []
-    };
-    initializeMap(fallbackStyle);
+    throw error;
 });
 
 function initializeMap(style) {
