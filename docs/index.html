@@ -7,6 +7,16 @@
 <script src="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
 <link href="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+<!-- Fallback libraries for environments where CDNs are blocked -->
+<script src="lib/maplibre-gl-mock.js"></script>
+<script src="lib/maplibre-contour-mock.js"></script>
+<link href="lib/maplibre-gl-mock.css" rel="stylesheet" />
+<script>
+  // The fallback libraries are now always loaded.
+  // If CDN libraries loaded successfully, they will override the mocks.
+  // If CDN libraries failed, the mocks will be used instead.
+  console.log('Fallback libraries loaded as backup');
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -171,8 +181,8 @@ fetch('style.json')
 });
 
 function initializeMap(style) {
-    // Initialize map
-    const map = new maplibregl.Map({
+    // Initialize map (make it global so event handlers can access it)
+    window.map = new maplibregl.Map({
         container: 'map',
         style: style,
         center: [7.7461, 46.0382], // Matterhorn coordinates
@@ -184,13 +194,13 @@ function initializeMap(style) {
     });
 
     // Add controls
-    map.addControl(new maplibregl.NavigationControl({
+    window.map.addControl(new maplibregl.NavigationControl({
         visualizePitch: true,
         showZoom: true,
         showCompass: true
     }));
 
-    map.addControl(new maplibregl.GlobeControl());
+    window.map.addControl(new maplibregl.GlobeControl());
 
     // Properties panel
     let propertiesPanel = document.getElementById('properties-panel');
@@ -201,8 +211,8 @@ function initializeMap(style) {
         propertiesPanel.style.display = 'none';
     });
 
-    map.on('click', (e) => {
-        const features = map.queryRenderedFeatures(e.point);
+    window.map.on('click', (e) => {
+        const features = window.map.queryRenderedFeatures(e.point);
         
         if (features.length > 0) {
             propertiesContent.innerHTML = '';
@@ -240,8 +250,8 @@ function initializeMap(style) {
     });
 
     // Enable terrain when map loads
-    map.on('load', () => {
-        map.setTerrain({
+    window.map.on('load', () => {
+        window.map.setTerrain({
             source: 'mapterhorn-terrain',
             exaggeration: 1.0
         });
@@ -258,12 +268,12 @@ function initializeMap(style) {
       const visibility = this.checked ? 'visible' : 'none';
       try {
         // Check if map is loaded and contour layers exist before trying to set their visibility
-        if (!map || !map.isStyleLoaded()) {
+        if (!window.map || !window.map.isStyleLoaded()) {
           console.warn('Map not ready for contour toggle');
           return;
         }
         
-        const style = map.getStyle();
+        const style = window.map.getStyle();
         if (!style || !style.layers) {
           console.warn('Map style not available for contour toggle');
           return;
@@ -274,10 +284,10 @@ function initializeMap(style) {
         const hasContourLabels = style.layers.some(layer => layer.id === 'contour-labels');
         
         if (hasContourLines) {
-          map.setLayoutProperty('contour-lines', 'visibility', visibility);
+          window.map.setLayoutProperty('contour-lines', 'visibility', visibility);
         }
         if (hasContourLabels) {
-          map.setLayoutProperty('contour-labels', 'visibility', visibility);
+          window.map.setLayoutProperty('contour-labels', 'visibility', visibility);
         }
       } catch (error) {
         console.error('Error toggling contours:', error);
@@ -287,12 +297,12 @@ function initializeMap(style) {
     document.getElementById('terrain').addEventListener('change', function() {
         const enabled = this.checked;
         if (enabled) {
-            map.setTerrain({
+            window.map.setTerrain({
                 source: 'mapterhorn-terrain',
                 exaggeration: 1.0
             });
         } else {
-            map.setTerrain(null);
+            window.map.setTerrain(null);
         }
     });
 
@@ -302,22 +312,22 @@ function initializeMap(style) {
         const hillshadeSource = source === 'gel' ? 'gel-hillshade' : 'mapterhorn-hillshade';
         
         // Update terrain source
-        map.setTerrain({
+        window.map.setTerrain({
             source: terrainSource,
             exaggeration: 1.0
         });
         
         // Update hillshade source if it exists
         try {
-            if (map.getLayer('hillshade')) {
-                map.removeLayer('hillshade');
+            if (window.map.getLayer('hillshade')) {
+                window.map.removeLayer('hillshade');
             }
-            if (map.getSource('hillshade')) {
-                map.removeSource('hillshade');
+            if (window.map.getSource('hillshade')) {
+                window.map.removeSource('hillshade');
             }
             
             // Re-add hillshade with new dedicated source
-            map.addLayer({
+            window.map.addLayer({
                 "id": "hillshade",
                 "type": "hillshade",
                 "source": hillshadeSource,
@@ -334,7 +344,7 @@ function initializeMap(style) {
 
     document.getElementById('hillshade').addEventListener('change', function() {
         const visibility = this.checked ? 'visible' : 'none';
-        map.setLayoutProperty('hillshade', 'visibility', visibility);
+        window.map.setLayoutProperty('hillshade', 'visibility', visibility);
     });
     // Log terrain configuration
     console.log('Mapterhorn Terrain Visualization initialized');
