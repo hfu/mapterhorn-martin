@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mapterhorn Martin</title>
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pmtiles@4.3.0/dist/pmtiles.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/maplibre-contour@0.1.0/dist/index.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
 
@@ -47,6 +48,10 @@
 </div>
 
 <script>
+// Initialize PMTiles protocol
+let protocol = new PMTiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
 // Initialize maplibre-contour DemSource with Mapterhorn terrain tiles
 var demSource = new mlcontour.DemSource({
   url: "https://tunnel.optgeo.org/martin/mapterhorn/{z}/{x}/{y}",
