@@ -6,7 +6,6 @@
 <title>Mapterhorn Martin</title>
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pmtiles@4.3.0/dist/pmtiles.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/maplibre-contour@0.1.0/dist/index.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
 
 <link rel="stylesheet" href="style.css">
@@ -16,13 +15,6 @@
 
 <div id="terrain-controls">
   <h4>⛰️ Mapterhorn Martin</h4>
-  
-  <label>
-    <input type="checkbox" id="contours" checked> Contour Lines
-  </label>
-  <div style="margin-left: 20px; font-size: 11px; color: #999;">
-    Note: Contours use Mapterhorn data only
-  </div>
   
   <label>
     <input type="checkbox" id="terrain" checked> Terrain (3D)
@@ -52,116 +44,10 @@
 let protocol = new pmtiles.Protocol();
 maplibregl.addProtocol("pmtiles", protocol.tile);
 
-// Initialize maplibre-contour DemSource with Mapterhorn terrain tiles
-var demSource = new mlcontour.DemSource({
-  url: "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",
-  encoding: "terrarium",
-  maxzoom: 13,
-  worker: true, // offload contour computation to web worker
-  cacheSize: 100,
-  timeoutMs: 10000
-});
-
-// Register the contour protocol with maplibre
-demSource.setupMaplibre(maplibregl);
-
 // Load the base style from external JSON file
 fetch('style.json')
 .then(response => response.json())
 .then(baseStyle => {
-    // Add the dynamic contours source
-    baseStyle.sources.contours = {
-        "type": "vector",
-        "tiles": [
-            demSource.contourProtocolUrl({
-                // Keep in meters (multiplier: 1)
-                multiplier: 1,
-                thresholds: {
-                    // zoom: [minor, major] intervals in meters
-                    10: [100, 500],
-                    11: [50, 250],
-                    12: [25, 100],
-                    13: [10, 50],
-                    14: [5, 25],
-                    15: [2, 10]
-                },
-                elevationKey: "ele",
-                levelKey: "level",
-                contourLayer: "contours"
-            })
-        ],
-        "maxzoom": 15
-    };
-
-    // Add contour layers
-    const contourLinesLayer = {
-        "id": "contour-lines",
-        "type": "line",
-        "source": "contours",
-        "source-layer": "contours",
-        "paint": {
-            "line-color": [
-                "case",
-                [">", ["get", "level"], 0],
-                "#B8860B", // major contours (softer brown)
-                "#DEB887"  // minor contours (lighter beige)
-            ],
-            "line-width": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                10, ["case", [">", ["get", "level"], 0], 1.2, 0.6],
-                15, ["case", [">", ["get", "level"], 0], 2.0, 1.0]
-            ],
-            "line-opacity": 0.6
-        },
-        "layout": {
-            "line-join": "miter",
-            "line-cap": "butt"
-        }
-    };
-
-    const contourLabelsLayer = {
-        "id": "contour-labels",
-        "type": "symbol",
-        "source": "contours",
-        "source-layer": "contours",
-        "filter": [">", ["get", "level"], 0], // only label major contours
-        "paint": {
-            "text-color": "#5D4E37",
-            "text-halo-color": "rgba(255,255,255,0.8)",
-            "text-halo-width": 2
-        },
-        "layout": {
-            "symbol-placement": "line",
-            "text-anchor": "center",
-            "text-size": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                10, 10,
-                15, 14
-            ],
-            "text-field": [
-                "concat",
-                ["number-format", ["get", "ele"], {}],
-                "m"
-            ],
-            "text-font": ["Noto Sans Bold"],
-            "text-max-angle": 30,
-            "text-rotation-alignment": "map"
-        }
-    };
-
-    // Insert contour layers after landcover layer
-    const landcoverIndex = baseStyle.layers.findIndex(layer => layer.id === 'landcover');
-    if (landcoverIndex !== -1) {
-        baseStyle.layers.splice(landcoverIndex + 1, 0, contourLinesLayer, contourLabelsLayer);
-    } else {
-        // Fallback: add at the beginning
-        baseStyle.layers.unshift(contourLinesLayer, contourLabelsLayer);
-    }
-
     // Initialize map with the complete style
     initializeMap(baseStyle);
 })
@@ -246,44 +132,12 @@ function initializeMap(style) {
             exaggeration: 1.0
         });
         
-        console.log('Mapterhorn Terrain Visualization with Contour Lines');
+        console.log('Mapterhorn Terrain Visualization');
         console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-        console.log('Contour generation: maplibre-contour library');
         console.log('Encoding: Terrarium format');
-        console.log('Units: Meters');
     });
 
     // Control functionality
-    document.getElementById('contours').addEventListener('change', function() {
-      const visibility = this.checked ? 'visible' : 'none';
-      try {
-        // Check if map is loaded and contour layers exist before trying to set their visibility
-        if (!window.map || !window.map.isStyleLoaded()) {
-          console.warn('Map not ready for contour toggle');
-          return;
-        }
-        
-        const style = window.map.getStyle();
-        if (!style || !style.layers) {
-          console.warn('Map style not available for contour toggle');
-          return;
-        }
-        
-        // Check if contour layers exist in the current style
-        const hasContourLines = style.layers.some(layer => layer.id === 'contour-lines');
-        const hasContourLabels = style.layers.some(layer => layer.id === 'contour-labels');
-        
-        if (hasContourLines) {
-          window.map.setLayoutProperty('contour-lines', 'visibility', visibility);
-        }
-        if (hasContourLabels) {
-          window.map.setLayoutProperty('contour-labels', 'visibility', visibility);
-        }
-      } catch (error) {
-        console.error('Error toggling contours:', error);
-      }
-    });
-
     document.getElementById('terrain').addEventListener('change', function() {
         const enabled = this.checked;
         if (enabled) {
@@ -339,7 +193,7 @@ function initializeMap(style) {
     // Log terrain configuration
     console.log('Mapterhorn Terrain Visualization initialized');
     console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-    console.log('Features: 3D terrain, hillshade, contour lines, interactive controls');
+    console.log('Features: 3D terrain, hillshade, interactive controls');
 }
 
 

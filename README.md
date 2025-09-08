@@ -1,10 +1,10 @@
 # mapterhorn-martin
 
 This repository is created with great respect for the Mapterhorn project and the X-24B (Flying Iron) experimental aircraft developed by Martin Company, as well as the [unvt/x-24b](https://github.com/unvt/x-24b) project.  
-It implements a comprehensive 3D terrain visualization demo featuring terrain rendering, hillshade effects, and contour line generation.
+It implements a comprehensive 3D terrain visualization demo featuring terrain rendering and hillshade effects.
 
 このリポジトリは、Mapterhorn プロジェクトと X-24B（Martin社開発の実験機、および [unvt/x-24b](https://github.com/unvt/x-24b) プロジェクト）へのリスペクトを込めて作成されました。  
-三次元地形・陰影・等高線等の可視化デモを実装しています。
+三次元地形・陰影等の可視化デモを実装しています。
 
 ## 🏔️ Project Overview / プロジェクト概要
 
@@ -12,20 +12,18 @@ This project is a web-based 3D terrain visualization system utilizing Mapterhorn
 
 本プロジェクトは、Mapterhorn の地形タイルを活用した Web ベースの三次元地形可視化システムです。
 
-- **Purpose / 目的**: Implement and demonstrate 3D terrain visualization, hillshade effects, and contour line rendering using Mapterhorn terrain tiles / Mapterhorn の地形タイルを用い、Web上で三次元地形表示・陰影表現・等高線描画などを実装・デモすること
+- **Purpose / 目的**: Implement and demonstrate 3D terrain visualization and hillshade effects using Mapterhorn terrain tiles / Mapterhorn の地形タイルを用い、Web上で三次元地形表示・陰影表現などを実装・デモすること
 - **Data Sources / データソース**: [tunnel.optgeo.org/martin/mapterhorn](https://tunnel.optgeo.org/martin/mapterhorn) (Terrarium) and [tunnel.optgeo.org/martin/gel](https://tunnel.optgeo.org/martin/gel) (Mapbox) / [tunnel.optgeo.org/martin/mapterhorn](https://tunnel.optgeo.org/martin/mapterhorn) (Terrarium) および [tunnel.optgeo.org/martin/gel](https://tunnel.optgeo.org/martin/gel) (Mapbox)
-- **Key Technologies / 主な技術**: MapLibre GL JS, maplibre-contour, WebGL
+- **Key Technologies / 主な技術**: MapLibre GL JS, WebGL
 - **Status / ステータス**: ✅ Implementation complete and operational / 実装完了・動作中
 
 ## 🚀 Technical Stack / 技術スタック
 
 - **Rendering / レンダリング**: MapLibre GL JS v5.6.1 (WebGL)
-- **Terrain Processing / 地形処理**: maplibre-contour v0.1.0 (dynamic contour generation / 動的等高線生成)
 - **Language / 言語**: JavaScript (ES Modules)
 - **Data Formats / データ形式**: 
   - Terrain tiles / 地形タイル: Terrarium encoding (Mapterhorn), Mapbox encoding (Gel) / Terrarium エンコーディング (Mapterhorn)、Mapbox エンコーディング (Gel)
   - Base map / ベースマップ: Protomaps vector tiles / Protomaps ベクトルタイル
-- **Optimization / 最適化**: Web Workers for parallel contour computation / Web Workers による等高線計算の並列処理
 
 ## 📁 Directory Structure / ディレクトリ構成
 
@@ -68,17 +66,12 @@ mapterhorn-martin/
 ✅ **Completed Features / 完成した機能:**
 
 1. **3D Terrain Visualization / 3D地形可視化**: WebGL rendering with MapLibre GL JS / MapLibre GL JS による WebGL レンダリング
-2. **Dynamic Contour Generation / 動的等高線生成**: Real-time contour computation using maplibre-contour library / maplibre-contour ライブラリによるリアルタイム等高線計算
-3. **Contour Labels / 等高線ラベル**: Automatic elevation value display (meters) / 標高値の自動表示（メートル単位）
-4. **Hillshade Effects / ヒルシェード効果**: Terrain shading for enhanced depth perception / 地形の陰影表現による立体感
-5. **Interactive Controls / インタラクティブ制御**:
-   - Contour lines toggle / 等高線表示/非表示切り替え
-   - Contour labels toggle / 等高線ラベル表示/非表示切り替え  
+2. **Hillshade Effects / ヒルシェード効果**: Terrain shading for enhanced depth perception / 地形の陰影表現による立体感
+3. **Interactive Controls / インタラクティブ制御**:
    - 3D terrain toggle / 3D地形表示/非表示切り替え
    - Hillshade effects toggle / ヒルシェード効果ON/OFF
    - Terrain data source switching (Mapterhorn/Gel) / 地形データソース切り替え (Mapterhorn/Gel)
-6. **Feature Property Display / 地物プロパティ表示**: Detailed information display on click / クリックによる詳細情報表示
-7. **Web Worker Optimization / Web Worker最適化**: Parallel processing for contour computation / 等高線計算の並列処理によるパフォーマンス向上
+4. **Feature Property Display / 地物プロパティ表示**: Detailed information display on click / クリックによる詳細情報表示
 
 **Implementation Architecture / 実装アーキテクチャ:**
 - Separated HTML/CSS structure / HTML/CSS 分離構成 (`docs/index.html` + `docs/style.css`)
@@ -148,24 +141,6 @@ Open your browser and navigate to `http://localhost:8000/docs` to view the terra
 
 ## 🔧 Troubleshooting / トラブルシューティング
 
-### Contour Lines Not Displaying / 等高線が表示されない場合
-
-**Symptoms / 症状**: Contour lines checkbox is ON but contours are not visible / 等高線チェックボックスがONでも等高線が表示されない
-
-**Cause / 原因**: Library loading from external CDN may have failed / 外部CDN からのライブラリ読み込みが失敗している可能性があります
-
-**Solutions / 解決方法**:
-1. Open browser developer tools (F12) / ブラウザの開発者ツール（F12）を開く
-2. Check console tab for `mlcontour is not defined` errors / コンソールタブで `mlcontour is not defined` エラーが出ていないか確認
-3. If errors appear, try the following / エラーが出ている場合は、以下を試してください：
-   - Access from a different network environment / 別のネットワーク環境でアクセス
-   - Clear browser cache / ブラウザのキャッシュをクリア
-   - Wait and try again later / しばらく時間をおいて再度アクセス
-
-**Technical Details / 技術詳細**: 
-- This application depends on MapLibre GL JS and maplibre-contour libraries / 本アプリは MapLibre GL JS と maplibre-contour ライブラリに依存しています
-- When normal operation occurs, contour generation protocol is automatically configured / 正常動作時は自動的に等高線生成プロトコルが設定されます
-
 ### Other Issues / その他の問題
 
 - **Terrain tiles not loading / 地形タイルが読み込まれない**: Data source may be temporarily unavailable / データソースが一時的に利用できない可能性があります
@@ -189,7 +164,6 @@ Open your browser and navigate to `http://localhost:8000/docs` to view the terra
 - **unvt/x-24b**: We pay tribute to the [Martin tile server](https://github.com/unvt/x-24b) PMTiles hosting solution / [Martin tile server](https://github.com/unvt/x-24b) による PMTiles ホスティングソリューションに敬意を表します
 - **MapLibre Martin**: Thank you for the contributions as a high-performance tile server / 高性能なタイルサーバーとしての MapLibre Martin の貢献に感謝いたします
 - **MapLibre GL JS**: High-performance WebGL-based mapping library / WebGL ベースの高性能地図ライブラリ
-- **maplibre-contour**: Development team of the dynamic contour generation library / 動的等高線生成ライブラリの開発チーム
 - **Protomaps**: Providing open-source vector tiles / オープンソースベクトルタイルの提供
 - **Open Community**: All developers and researchers contributing to terrain visualization technology / 地形可視化技術の発展に貢献するすべての開発者・研究者の皆様
 
