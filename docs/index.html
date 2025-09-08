@@ -54,9 +54,9 @@ maplibregl.addProtocol("pmtiles", protocol.tile);
 
 // Initialize maplibre-contour DemSource with Mapterhorn terrain tiles
 var demSource = new mlcontour.DemSource({
-  url: "https://tunnel.optgeo.org/martin/gel/{z}/{x}/{y}",
-  encoding: "mapbox",
-  maxzoom: 12,
+  url: "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",
+  encoding: "terrarium",
+  maxzoom: 13,
   worker: true, // offload contour computation to web worker
   cacheSize: 100,
   timeoutMs: 10000
