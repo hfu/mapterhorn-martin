@@ -1,14 +1,14 @@
 # Copilot Instructions for mapterhorn-martin
 
 このリポジトリは、Mapterhorn プロジェクトと X-24B（Martin社開発の実験機）へのリスペクトを込めて作成されました。  
-三次元地形・陰影・等高線等の可視化デモを目指しています。  
+三次元地形・陰影等の可視化デモを目指しています。  
 地形タイルは [tunnel.optgeo.org/martin/mapterhorn](https://tunnel.optgeo.org/martin/mapterhorn) の TileJSON を利用しています。
 
 ---
 
 ## プロジェクト概要
 
-- **目的**: Mapterhorn の地形タイルを用い、Web上で三次元地形表示・陰影表現・等高線描画などを実装・デモすること。
+- **目的**: Mapterhorn の地形タイルを用い、Web上で三次元地形表示・陰影表現などを実装・デモすること。
 - **利用タイル**: [TileJSON](https://tunnel.optgeo.org/martin/mapterhorn)  
 - **主な技術**: WebGL, JavaScript/TypeScript, Mapterhornライブラリ
 
