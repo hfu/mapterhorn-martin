@@ -8,7 +8,7 @@
     },
     "mapterhorn-terrain": {
       "type": "raster-dem",
-      "url": "pmtiles://https://download.mapterhorn.com/planet.pmtiles",
+      "url": "pmtiles://https://tunnel.optgeo.org/mapterhorn.pmtiles",
       "tileSize": 512,
       "encoding": "terrarium"
     },
@@ -20,7 +20,7 @@
     },
     "mapterhorn-hillshade": {
       "type": "raster-dem",
-      "url": "pmtiles://https://download.mapterhorn.com/planet.pmtiles",
+      "url": "pmtiles://https://tunnel.optgeo.org/mapterhorn.pmtiles",
       "tileSize": 512,
       "encoding": "terrarium"
     },
