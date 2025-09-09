@@ -83,19 +83,7 @@
           "rgba(234, 239, 210, 1)",
           "rgba(196, 231, 210, 1)"
         ],
-        "fill-opacity": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          5,
-          1,
-          7,
-          0
-        ]
+        "fill-opacity": 1
       }
     },
     {
