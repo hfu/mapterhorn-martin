@@ -1,0 +1,25 @@
+{
+  "name": "mapterhorn-martin",
+  "version": "1.0.0",
+  "description": "This repository is created with great respect for the Mapterhorn project and the X-24B (Flying Iron) experimental aircraft developed by Martin Company, as well as the [unvt/x-24b](https://github.com/unvt/x-24b) project.   It implements a comprehensive 3D terrain visualization demo featuring terrain rendering and hillshade effects.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^7.1.5"
+  },
+  "dependencies": {
+    "maplibre-gl": "^5.7.1",
+    "pmtiles": "^4.3.0"
+  }
+}
