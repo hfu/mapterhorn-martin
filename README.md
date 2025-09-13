@@ -1,5 +1,9 @@
 # mapterhorn-martin
 
+This project operates a fully self-hosted web map stack on a Raspberry Pi, combining self-hosted Protomaps Basemaps (vector tiles) and Mapterhorn terrain tiles.
+
+本プロジェクトは、Raspberry Pi 上でセルフホストした Protomaps Basemaps（ベクトルタイル）と Mapterhorn（地形タイル）を組み合わせ、セルフホストされたウェブ地図を運用する構成です。
+
 This repository is created with great respect for the Mapterhorn project and the X-24B (Flying Iron) experimental aircraft developed by Martin Company, as well as the [unvt/x-24b](https://github.com/unvt/x-24b) project.  
 It implements a comprehensive 3D terrain visualization demo featuring terrain rendering and hillshade effects.
 
