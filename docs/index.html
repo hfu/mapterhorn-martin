@@ -53,9 +53,14 @@
 </div>
 
 <script>
-// Initialize PMTiles protocol
-let protocol = new pmtiles.Protocol();
-maplibregl.addProtocol("pmtiles", protocol.tile);
+// Initialize PMTiles protocol (with error handling for environments where CDN is blocked)
+try {
+    let protocol = new pmtiles.Protocol();
+    maplibregl.addProtocol("pmtiles", protocol.tile);
+} catch (error) {
+    console.warn('PMTiles or MapLibre not available:', error.message);
+    // Continue with initialization anyway for basic functionality
+}
 
 // Load the base style from external JSON file
 fetch('style.json')
@@ -66,8 +71,63 @@ fetch('style.json')
 })
 .catch(error => {
     console.error('Error loading style.json:', error);
-    throw error;
+    // Set up basic controls even if map fails to load
+    setupControls();
 });
+
+function setupControls() {
+    // Illumination direction control
+    document.getElementById('illumination-direction').addEventListener('input', function() {
+        const direction = parseInt(this.value);
+        document.getElementById('direction-value').textContent = direction + '°';
+        if (window.map && window.map.getLayer && window.map.getLayer('hillshade')) {
+            window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', direction);
+        }
+    });
+
+    // Preset configurations
+    const presets = {
+        natural: {
+            shadow: '#473B24',
+            highlight: '#F4E8C1', 
+            accent: '#8a7f6e',
+            direction: 315
+        },
+        enhanced: {
+            shadow: '#2a2419',
+            highlight: '#fff3d4',
+            accent: '#7a6f5e', 
+            direction: 325
+        },
+        subtle: {
+            shadow: '#5a4f3a',
+            highlight: '#f0e7d0',
+            accent: '#9a8f7e',
+            direction: 335
+        }
+    };
+
+    function applyPreset(presetName) {
+        const preset = presets[presetName];
+        if (!preset) return;
+
+        // Update UI controls
+        document.getElementById('illumination-direction').value = preset.direction;
+        document.getElementById('direction-value').textContent = preset.direction + '°';
+        
+        // Update map properties if map and hillshade layer exist
+        if (window.map && window.map.getLayer && window.map.getLayer('hillshade')) {
+            window.map.setPaintProperty('hillshade', 'hillshade-shadow-color', preset.shadow);
+            window.map.setPaintProperty('hillshade', 'hillshade-highlight-color', preset.highlight);
+            window.map.setPaintProperty('hillshade', 'hillshade-accent-color', preset.accent);
+            window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', preset.direction);
+        }
+    }
+
+    document.getElementById('preset-natural').addEventListener('click', () => applyPreset('natural'));
+    document.getElementById('preset-enhanced').addEventListener('click', () => applyPreset('enhanced'));
+    document.getElementById('preset-subtle').addEventListener('click', () => applyPreset('subtle'));
+}
 
 function initializeMap(style) {
     // Initialize map (make it global so event handlers can access it)
@@ -206,58 +266,7 @@ function initializeMap(style) {
         const visibility = this.checked ? 'visible' : 'none';
         window.map.setLayoutProperty('hillshade', 'visibility', visibility);
     });
-
-    // Illumination direction control
-    document.getElementById('illumination-direction').addEventListener('input', function() {
-        const direction = parseInt(this.value);
-        document.getElementById('direction-value').textContent = direction + '°';
-        if (window.map.getLayer('hillshade')) {
-            window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', direction);
-        }
-    });
-
-    // Preset configurations
-    const presets = {
-        natural: {
-            shadow: '#473B24',
-            highlight: '#F4E8C1', 
-            accent: '#8a7f6e',
-            direction: 315
-        },
-        enhanced: {
-            shadow: '#2a2419',
-            highlight: '#fff3d4',
-            accent: '#7a6f5e', 
-            direction: 325
-        },
-        subtle: {
-            shadow: '#5a4f3a',
-            highlight: '#f0e7d0',
-            accent: '#9a8f7e',
-            direction: 335
-        }
-    };
-
-    function applyPreset(presetName) {
-        const preset = presets[presetName];
-        if (!preset) return;
-
-        // Update UI controls
-        document.getElementById('illumination-direction').value = preset.direction;
-        document.getElementById('direction-value').textContent = preset.direction + '°';
-        
-        // Update map properties if map and hillshade layer exist
-        if (window.map && window.map.getLayer('hillshade')) {
-            window.map.setPaintProperty('hillshade', 'hillshade-shadow-color', preset.shadow);
-            window.map.setPaintProperty('hillshade', 'hillshade-highlight-color', preset.highlight);
-            window.map.setPaintProperty('hillshade', 'hillshade-accent-color', preset.accent);
-            window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', preset.direction);
-        }
-    }
-
-    document.getElementById('preset-natural').addEventListener('click', () => applyPreset('natural'));
-    document.getElementById('preset-enhanced').addEventListener('click', () => applyPreset('enhanced'));
-    document.getElementById('preset-subtle').addEventListener('click', () => applyPreset('subtle'));
+    
     // Log terrain configuration
     console.log('Mapterhorn Terrain Visualization initialized');
     console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
