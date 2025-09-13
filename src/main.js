@@ -100,7 +100,7 @@ function initializeMap(style) {
         style: style,
         hash: true,
         antialias: true,
-        maxBearing: 85
+        maxPitch: 85
     });
 
     // Add navigation control (zoom, compass, and 3D pitch toggle)
