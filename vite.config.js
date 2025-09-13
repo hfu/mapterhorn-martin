@@ -9,7 +9,7 @@ export default defineConfig({
     emptyOutDir: false, // Don't delete style.json and other existing files
     rollupOptions: {
       input: {
-        main: resolve('src/index.html')
+        main: resolve(__dirname, 'src/index.html')
       },
       output: {
         // Disable hashing in filenames
