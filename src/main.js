@@ -26,6 +26,56 @@ fetch('style.json')
 });
 
 function setupControls() {
+    // Hamburger Menu functionality
+    const menuToggle = document.getElementById('menu-toggle');
+    const terrainControls = document.getElementById('terrain-controls');
+    const closeControls = document.getElementById('close-controls');
+    
+    function toggleMenu() {
+        const isOpen = terrainControls.classList.contains('show');
+        
+        if (isOpen) {
+            terrainControls.classList.remove('show');
+            menuToggle.classList.remove('active');
+            document.body.style.overflow = '';
+        } else {
+            terrainControls.classList.add('show');
+            menuToggle.classList.add('active');
+            // Prevent body scroll when menu is open on mobile
+            if (window.innerWidth <= 768) {
+                document.body.style.overflow = 'hidden';
+            }
+        }
+    }
+    
+    if (menuToggle) {
+        menuToggle.addEventListener('click', toggleMenu);
+    }
+    
+    if (closeControls) {
+        closeControls.addEventListener('click', toggleMenu);
+    }
+    
+    // Close menu when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 768 && 
+            terrainControls.classList.contains('show') && 
+            !terrainControls.contains(event.target) && 
+            !menuToggle.contains(event.target)) {
+            toggleMenu();
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            // Reset mobile menu state when resizing to desktop
+            terrainControls.classList.remove('show');
+            menuToggle.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+
     // Illumination direction control
     document.getElementById('illumination-direction').addEventListener('input', function() {
         const direction = parseInt(this.value);
