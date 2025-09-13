@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mapterhorn Martin</title>
-<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pmtiles@4.3.0/dist/pmtiles.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@4.3.0/dist/pmtiles.js"></script>
+<link href="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
 
 <link rel="stylesheet" href="style.css">
 </head>
@@ -81,7 +81,14 @@ function setupControls() {
         const direction = parseInt(this.value);
         document.getElementById('direction-value').textContent = direction + '°';
         if (window.map && window.map.getLayer && window.map.getLayer('hillshade')) {
-            window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', direction);
+            try {
+                window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', direction);
+                console.log('Updated illumination direction to:', direction);
+            } catch (error) {
+                console.warn('Failed to update illumination direction:', error);
+            }
+        } else {
+            console.warn('Map or hillshade layer not ready yet for direction change:', direction);
         }
     });
 
@@ -117,10 +124,17 @@ function setupControls() {
         
         // Update map properties if map and hillshade layer exist
         if (window.map && window.map.getLayer && window.map.getLayer('hillshade')) {
-            window.map.setPaintProperty('hillshade', 'hillshade-shadow-color', preset.shadow);
-            window.map.setPaintProperty('hillshade', 'hillshade-highlight-color', preset.highlight);
-            window.map.setPaintProperty('hillshade', 'hillshade-accent-color', preset.accent);
-            window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', preset.direction);
+            try {
+                window.map.setPaintProperty('hillshade', 'hillshade-shadow-color', preset.shadow);
+                window.map.setPaintProperty('hillshade', 'hillshade-highlight-color', preset.highlight);
+                window.map.setPaintProperty('hillshade', 'hillshade-accent-color', preset.accent);
+                window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', preset.direction);
+                console.log('Applied preset:', presetName, preset);
+            } catch (error) {
+                console.warn('Failed to apply preset:', presetName, error);
+            }
+        } else {
+            console.warn('Map or hillshade layer not ready yet for preset:', presetName);
         }
     }
 
@@ -271,6 +285,9 @@ function initializeMap(style) {
     console.log('Mapterhorn Terrain Visualization initialized');
     console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
     console.log('Features: 3D terrain, hillshade, interactive controls');
+    
+    // Set up hillshade controls after map is initialized
+    setupControls();
 }
 
 
