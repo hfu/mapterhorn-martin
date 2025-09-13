@@ -165,6 +165,13 @@ function initializeMap(style) {
     }));
 
     window.map.addControl(new maplibregl.GlobeControl());
+    
+    // Add scale bar control
+    // Provides metric distance reference for users to understand terrain scale
+    window.map.addControl(new maplibregl.ScaleControl({
+        maxWidth: 100,
+        unit: 'metric'
+    }));
 
     // Properties panel
     let propertiesPanel = document.getElementById('properties-panel');
