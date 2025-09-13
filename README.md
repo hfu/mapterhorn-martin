@@ -29,13 +29,20 @@ This project is a web-based 3D terrain visualization system utilizing Mapterhorn
 
 ```
 mapterhorn-martin/
-├── docs/           # GitHub Pages content (implemented) / GitHub Pages のコンテンツ (実装済み)
-│   ├── index.html  # Terrain visualization application / 地形可視化アプリケーション
-│   ├── style.css   # Application styling / アプリケーションのスタイリング
-│   └── style.json  # MapLibre style configuration / MapLibre スタイル設定
-├── .github/        # GitHub Actions configuration / GitHub Actions 設定
-├── LICENSE         # License file / ライセンスファイル
-└── README.md       # This document / このドキュメント
+├── docs/             # GitHub Pages content (built files) / GitHub Pages のコンテンツ (ビルド済みファイル)
+│   ├── index.html    # Terrain visualization application / 地形可視化アプリケーション
+│   ├── main.js       # Bundled JavaScript with all dependencies / 全依存関係を含むバンドル済みJavaScript
+│   ├── main.css      # Bundled styles / バンドル済みスタイル
+│   └── style.json    # MapLibre style configuration / MapLibre スタイル設定
+├── src/              # Source files for development / 開発用ソースファイル
+│   ├── index.html    # HTML template / HTML テンプレート
+│   ├── main.js       # Main JavaScript module / メイン JavaScript モジュール
+│   └── style.css     # Source styles / ソーススタイル
+├── .github/          # GitHub Actions configuration / GitHub Actions 設定
+├── package.json      # Node.js dependencies and scripts / Node.js 依存関係とスクリプト
+├── vite.config.js    # Vite bundler configuration / Vite バンドラー設定
+├── LICENSE           # License file / ライセンスファイル
+└── README.md         # This document / このドキュメント
 ```
 
 ## 🗺️ Data Sources / データソース
@@ -91,16 +98,25 @@ mapterhorn-martin/
 git clone https://github.com/hfu/mapterhorn-martin.git
 cd mapterhorn-martin
 
-# Serve locally / ローカルサーバーで表示
+# Install dependencies / 依存関係をインストール
+npm install
+
+# Development server with hot reload / ホットリロード付き開発サーバー
+npm run dev
+
+# Build for production / プロダクション用ビルド
+npm run build
+
+# Serve built files locally / ビルド済みファイルをローカルサーバーで表示
 # Using Python / Python の場合
-python -m http.server 8000
+python -m http.server 8000 -d docs
 # Or using Node.js / または Node.js の場合
 npx serve docs
 ```
 
-Open your browser and navigate to `http://localhost:8000/docs` to view the terrain visualization demo.
+The development server will automatically open your browser to view the terrain visualization demo.
 
-ブラウザで `http://localhost:8000/docs` にアクセスして地形可視化デモをご覧ください。
+開発サーバーが自動的にブラウザを開いて地形可視化デモを表示します。
 
 ### 🎮 Controls / 操作方法
 
@@ -115,9 +131,9 @@ Open your browser and navigate to `http://localhost:8000/docs` to view the terra
 
 ### Architecture / アーキテクチャ
 
-- **Separated structure / 分離された構成**: HTML structure (`docs/index.html`) and styling (`docs/style.css`) separation / HTML構造 (`docs/index.html`) とスタイリング (`docs/style.css`) を分離
-- **CDN dependencies / CDN 依存関係**: External libraries loaded via jsDelivr CDN / 外部ライブラリは jsDelivr CDN 経由で読み込み
-- **Modular design / モジュラー設計**: JavaScript functions separated by functionality / 機能ごとに分離されたJavaScript関数
+- **Static bundling / 静的バンドリング**: Libraries bundled with Vite for improved stability / Vite による安定性向上のためのライブラリ静的バンドリング
+- **Separated structure / 分離された構成**: Modular JavaScript with ES modules and CSS separation / ES モジュールとCSS分離によるモジュラー JavaScript 構成
+- **Local dependencies / ローカル依存関係**: All external libraries bundled locally (no CDN dependencies) / 全ての外部ライブラリをローカルバンドリング（CDN依存なし）
 - **Responsive UI / レスポンシブ UI**: Desktop and mobile support / デスクトップ・モバイル対応
 
 ### Coding Style / コーディングスタイル
