@@ -98,12 +98,9 @@ function initializeMap(style) {
     window.map = new maplibregl.Map({
         container: 'map',
         style: style,
-        center: [7.5, 46.8],
-        zoom: 8,
-        pitch: 60,
-        bearing: 0,
         hash: true,
-        antialias: true
+        antialias: true,
+        maxBearing: 85
     });
 
     // Add navigation control (zoom, compass, and 3D pitch toggle)
