@@ -81,8 +81,8 @@ mapterhorn-martin/
 4. **Feature Property Display / 地物プロパティ表示**: Detailed information display on click / クリックによる詳細情報表示
 
 **Implementation Architecture / 実装アーキテクチャ:**
-- Separated HTML/CSS structure / HTML/CSS 分離構成 (`docs/index.html` + `docs/style.css`)
-- jsDelivr CDN-based dependency management / jsDelivr CDN ベースの依存関係管理（安定性向上）
+- Separated HTML/CSS structure / HTML/CSS 分離構成 (`docs/index.html` + `docs/main.css`)
+- Vite-based local bundling / Vite による ローカルバンドリング（CDN依存なし）
 - Responsive design support / レスポンシブデザイン対応
 
 ## 🏁 Getting Started / 使い方
