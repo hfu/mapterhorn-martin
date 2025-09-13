@@ -159,7 +159,20 @@
         "dam"
       ],
       "paint": {
-        "fill-color": "#e3e0d4"
+        "fill-color": "#e3e0d4",
+        "fill-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          6,
+          1,
+          7,
+          0
+        ]
       }
     },
     {
