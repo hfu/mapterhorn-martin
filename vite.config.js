@@ -23,7 +23,9 @@ export default defineConfig({
           return '[name][extname]';
         }
       }
-    }
+    },
+    // Copy style.json to the output directory
+    assetsInclude: ['**/*.json']
   },
   publicDir: false, // Disable copying public dir since we want to preserve existing docs files
   server: {
