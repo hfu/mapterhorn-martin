@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapterhorn Martin</title>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="terrain-controls">
+  <h4>⛰️ Mapterhorn Martin</h4>
+  
+  <label>
+    <input type="checkbox" id="terrain" checked> Terrain (3D)
+  </label>
+  
+  <label>
+    <input type="checkbox" id="hillshade" checked> Hillshade Effects
+  </label>
+  
+  <label>
+    Terrain Source:
+    <select id="terrain-source">
+      <option value="mapterhorn">Mapterhorn (Terrarium)</option>
+      <option value="gel">Gel (Mapbox)</option>
+    </select>
+  </label>
+  
+  <label>
+    Light Direction:
+    <input type="range" id="illumination-direction" min="315" max="335" value="315" step="1">
+    <span id="direction-value">315°</span>
+  </label>
+  
+  <div class="preset-buttons">
+    <label>Presets:</label>
+    <button id="preset-natural" type="button">Natural</button>
+    <button id="preset-enhanced" type="button">Enhanced</button>
+    <button id="preset-subtle" type="button">Subtle</button>
+  </div>
+</div>
+
+<div id="properties-panel">
+  <button id="close-panel">&times;</button>
+  <h3>Feature Properties</h3>
+  <div id="properties-content"></div>
+</div>
+
+<script type="module" src="./main.js"></script>
+</body>
+</html>
