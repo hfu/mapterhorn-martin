@@ -59,6 +59,19 @@ body {
 #terrain-controls button:hover {
   background: #005a8c;
 }
+.preset-buttons {
+  margin-top: 10px;
+}
+.preset-buttons label {
+  display: inline-block;
+  margin-bottom: 5px;
+  margin-right: 10px;
+}
+#direction-value {
+  margin-left: 10px;
+  color: #87CEEB;
+  font-weight: bold;
+}
 #properties-panel {
   position: fixed;
   top: 0;
