@@ -10,12 +10,16 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:css:fix": "stylelint \"src/**/*.css\" --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "stylelint": "^16.2.1",
+    "stylelint-config-standard": "^36.0.0",
     "vite": "^7.1.5"
   },
   "dependencies": {

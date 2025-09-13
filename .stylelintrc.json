@@ -1,0 +1,38 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "declaration-no-important": true,
+    "selector-max-specificity": ["0,5,4", {
+      "severity": "warning"
+    }],
+    "selector-max-id": 3,
+    "selector-max-class": 5,
+    "max-nesting-depth": 4,
+    "no-descending-specificity": null,
+    "rule-empty-line-before": ["always", {
+      "except": ["first-nested"],
+      "ignore": ["after-comment"]
+    }],
+    "color-function-notation": "modern",
+    "alpha-value-notation": "percentage",
+    "shorthand-property-no-redundant-values": true,
+    "font-family-name-quotes": "always-unless-keyword",
+    "comment-pattern": null,
+    "declaration-block-no-duplicate-properties": true,
+    "color-no-invalid-hex": true,
+    "font-family-no-duplicate-names": true,
+    "property-no-unknown": true,
+    "unit-no-unknown": true,
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["layer", "container"]
+      }
+    ]
+  },
+  "ignoreFiles": [
+    "docs/main.css",
+    "node_modules/**/*",
+    "dist/**/*"
+  ]
+}
