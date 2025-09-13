@@ -8,8 +8,19 @@
 <body>
 <div id="map"></div>
 
+<div id="hamburger-menu">
+  <button id="menu-toggle" aria-label="Toggle menu">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+</div>
+
 <div id="terrain-controls">
-  <h4>⛰️ Mapterhorn Martin</h4>
+  <div id="controls-header">
+    <h4>⛰️ Mapterhorn Martin</h4>
+    <button id="close-controls" aria-label="Close menu">&times;</button>
+  </div>
   
   <label>
     <input type="checkbox" id="terrain" checked> Terrain (3D)
