@@ -2,7 +2,7 @@
   "extends": ["stylelint-config-standard"],
   "rules": {
     "declaration-no-important": true,
-    "selector-max-specificity": ["0,5,4", {
+    "selector-max-specificity": ["0,3,3", {
       "severity": "warning"
     }],
     "selector-max-id": 3,
