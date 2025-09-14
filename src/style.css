@@ -22,12 +22,37 @@ body {
   border: 1px solid rgb(255 255 255 / 20%);
   backdrop-filter: blur(10px);
   min-width: 250px;
+  transition: all 0.3s ease;
+}
+
+#controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 #terrain-controls h4 {
   margin: 0 0 15px;
   color: #87CEEB;
   font-size: 1.2em;
+}
+
+#close-controls {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: none; /* Hidden by default, shown on mobile */
+  line-height: 1;
+}
+
+#close-controls:hover {
+  color: #87CEEB;
 }
 
 #terrain-controls label {
