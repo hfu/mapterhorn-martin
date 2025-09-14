@@ -119,10 +119,11 @@ body {
   padding: 12px 16px;
   border-radius: 5px;
   margin-top: 15px;
-  width: 100%;
+  width: auto;
   display: none; /* Hidden by default, shown on mobile */
   font-weight: bold;
   text-align: center;
+  min-width: 80px;
 }
 
 #close-controls:hover {
