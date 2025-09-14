@@ -180,7 +180,6 @@ body {
 */
 
 /* Override MapLibre fullscreen styles with higher specificity */
-html body #map.maplibregl-map .maplibregl-pseudo-fullscreen,
 body #map.maplibregl-map .maplibregl-pseudo-fullscreen {
   /* Use higher specificity to override !important without using !important */
   position: fixed;
