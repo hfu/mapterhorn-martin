@@ -76,51 +76,28 @@ function setupControls() {
         }
     });
 
-    // Illumination direction control
-    document.getElementById('illumination-direction').addEventListener('input', function() {
-        const direction = parseInt(this.value);
-        document.getElementById('direction-value').textContent = direction + '°';
-        if (window.map && window.map.getLayer && window.map.getLayer('hillshade')) {
-            try {
-                window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', direction);
-                console.log('Updated illumination direction to:', direction);
-            } catch (error) {
-                console.warn('Failed to update illumination direction:', error);
-            }
-        } else {
-            console.warn('Map or hillshade layer not ready yet for direction change:', direction);
-        }
-    });
-
     // Preset configurations
     const presets = {
         natural: {
             shadow: '#473B24',
             highlight: '#F4E8C1', 
-            accent: '#8a7f6e',
-            direction: 315
+            accent: '#8a7f6e'
         },
         enhanced: {
             shadow: '#2a2419',
             highlight: '#fff3d4',
-            accent: '#7a6f5e', 
-            direction: 325
+            accent: '#7a6f5e'
         },
         subtle: {
             shadow: '#5a4f3a',
             highlight: '#f0e7d0',
-            accent: '#9a8f7e',
-            direction: 335
+            accent: '#9a8f7e'
         }
     };
 
     function applyPreset(presetName) {
         const preset = presets[presetName];
         if (!preset) return;
-
-        // Update UI controls
-        document.getElementById('illumination-direction').value = preset.direction;
-        document.getElementById('direction-value').textContent = preset.direction + '°';
         
         // Update map properties if map and hillshade layer exist
         if (window.map && window.map.getLayer && window.map.getLayer('hillshade')) {
@@ -128,7 +105,6 @@ function setupControls() {
                 window.map.setPaintProperty('hillshade', 'hillshade-shadow-color', preset.shadow);
                 window.map.setPaintProperty('hillshade', 'hillshade-highlight-color', preset.highlight);
                 window.map.setPaintProperty('hillshade', 'hillshade-accent-color', preset.accent);
-                window.map.setPaintProperty('hillshade', 'hillshade-illumination-direction', preset.direction);
                 console.log('Applied preset:', presetName, preset);
             } catch (error) {
                 console.warn('Failed to apply preset:', presetName, error);
