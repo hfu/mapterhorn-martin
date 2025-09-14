@@ -12,18 +12,24 @@ try {
     // Continue with initialization anyway for basic functionality
 }
 
-// Load the base style from external JSON file
-fetch('style.json')
-.then(response => response.json())
-.then(baseStyle => {
-    // Initialize map with the complete style
-    initializeMap(baseStyle);
-})
-.catch(error => {
-    console.error('Error loading style.json:', error);
-    // Set up basic controls even if map fails to load
-    setupControls();
-});
+// Initialize the application
+async function initializeApp() {
+    try {
+        const response = await fetch('style.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const baseStyle = await response.json();
+        initializeMap(baseStyle);
+    } catch (error) {
+        console.error('Error loading style.json:', error);
+        // Set up basic controls even if map fails to load
+        setupControls();
+    }
+}
+
+// Start the application
+initializeApp();
 
 function setupControls() {
     // Hamburger Menu functionality
@@ -114,9 +120,14 @@ function setupControls() {
         }
     }
 
-    document.getElementById('preset-natural').addEventListener('click', () => applyPreset('natural'));
-    document.getElementById('preset-enhanced').addEventListener('click', () => applyPreset('enhanced'));
-    document.getElementById('preset-subtle').addEventListener('click', () => applyPreset('subtle'));
+    // Preset button event delegation - more efficient than individual listeners
+    document.querySelector('.preset-buttons').addEventListener('click', (event) => {
+        const button = event.target;
+        if (button.tagName === 'BUTTON' && button.id.startsWith('preset-')) {
+            const presetName = button.id.replace('preset-', '');
+            applyPreset(presetName);
+        }
+    });
 }
 
 function initializeMap(style) {
@@ -233,41 +244,23 @@ function initializeMap(style) {
 
     // Enable terrain when map loads
     window.map.on('load', () => {
-        window.map.setTerrain({
-            source: 'mapterhorn-terrain',
-            exaggeration: 1.0
-        });
-        
-        console.log('Mapterhorn Terrain Visualization');
+        setTerrainFromSource('mapterhorn-terrain');
+        console.log('Mapterhorn Terrain Visualization initialized');
         console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
         console.log('Encoding: Terrarium format');
     });
 
-    // Control functionality
-    document.getElementById('terrain').addEventListener('change', function() {
-        const enabled = this.checked;
-        if (enabled) {
+    // Utility functions for terrain management
+    function setTerrainFromSource(source = 'mapterhorn-terrain') {
+        if (window.map) {
             window.map.setTerrain({
-                source: 'mapterhorn-terrain',
+                source: source,
                 exaggeration: 1.0
             });
-        } else {
-            window.map.setTerrain(null);
         }
-    });
+    }
 
-    document.getElementById('terrain-source').addEventListener('change', function() {
-        const source = this.value;
-        const terrainSource = source === 'gel' ? 'gel-terrain' : 'mapterhorn-terrain';
-        const hillshadeSource = source === 'gel' ? 'gel-hillshade' : 'mapterhorn-hillshade';
-        
-        // Update terrain source
-        window.map.setTerrain({
-            source: terrainSource,
-            exaggeration: 1.0
-        });
-        
-        // Update hillshade source if it exists
+    function updateHillshadeLayer(sourceId) {
         try {
             if (window.map.getLayer('hillshade')) {
                 window.map.removeLayer('hillshade');
@@ -280,7 +273,7 @@ function initializeMap(style) {
             window.map.addLayer({
                 "id": "hillshade",
                 "type": "hillshade",
-                "source": hillshadeSource,
+                "source": sourceId,
                 "paint": {
                     "hillshade-shadow-color": "#473B24",
                     "hillshade-highlight-color": "#F4E8C1",
@@ -292,17 +285,37 @@ function initializeMap(style) {
         } catch (error) {
             console.warn('Could not update hillshade:', error);
         }
-    });
+    }
 
-    document.getElementById('hillshade').addEventListener('change', function() {
-        const visibility = this.checked ? 'visible' : 'none';
-        window.map.setLayoutProperty('hillshade', 'visibility', visibility);
+    // Consolidated control handlers using event delegation where possible
+    const controlsContainer = document.getElementById('terrain-controls');
+    controlsContainer.addEventListener('change', function(event) {
+        const target = event.target;
+        
+        switch(target.id) {
+            case 'terrain':
+                if (target.checked) {
+                    setTerrainFromSource('mapterhorn-terrain');
+                } else {
+                    window.map.setTerrain(null);
+                }
+                break;
+                
+            case 'terrain-source':
+                const source = target.value;
+                const terrainSource = source === 'gel' ? 'gel-terrain' : 'mapterhorn-terrain';
+                const hillshadeSource = source === 'gel' ? 'gel-hillshade' : 'mapterhorn-hillshade';
+                
+                setTerrainFromSource(terrainSource);
+                updateHillshadeLayer(hillshadeSource);
+                break;
+                
+            case 'hillshade':
+                const visibility = target.checked ? 'visible' : 'none';
+                window.map.setLayoutProperty('hillshade', 'visibility', visibility);
+                break;
+        }
     });
-    
-    // Log terrain configuration
-    console.log('Mapterhorn Terrain Visualization initialized');
-    console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
-    console.log('Features: 3D terrain, hillshade, interactive controls');
     
     // Set up hillshade controls after map is initialized
     setupControls();
