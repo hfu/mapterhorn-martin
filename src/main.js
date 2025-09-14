@@ -154,39 +154,78 @@ function initializeMap(style) {
         propertiesPanel.style.display = 'none';
     });
 
+    // Variables for double-tap detection on mobile
+    let lastTapTime = 0;
+    let tapCount = 0;
+    const doubleTapDelay = 300; // milliseconds
+    
+    function showPropertiesPanel(features) {
+        propertiesContent.innerHTML = '';
+        
+        features.forEach((feature, index) => {
+            const featureDiv = document.createElement('div');
+            featureDiv.className = 'feature-item';
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'feature-header';
+            headerDiv.textContent = `${feature.sourceLayer || 'Feature'} (${feature.geometry.type})`;
+            headerDiv.onclick = () => {
+                const props = featureDiv.querySelector('.feature-properties');
+                props.classList.toggle('collapsed');
+            };
+            
+            const propsDiv = document.createElement('div');
+            propsDiv.className = 'feature-properties';
+            
+            if (feature.properties && Object.keys(feature.properties).length > 0) {
+                propsDiv.textContent = JSON.stringify(feature.properties, null, 2);
+            } else {
+                propsDiv.textContent = 'No properties';
+            }
+            
+            featureDiv.appendChild(headerDiv);
+            featureDiv.appendChild(propsDiv);
+            propertiesContent.appendChild(featureDiv);
+        });
+        
+        propertiesPanel.style.display = 'block';
+    }
+    
     window.map.on('click', (e) => {
         const features = window.map.queryRenderedFeatures(e.point);
         
         if (features.length > 0) {
-            propertiesContent.innerHTML = '';
+            const isMobile = window.innerWidth <= 768;
             
-            features.forEach((feature, index) => {
-                const featureDiv = document.createElement('div');
-                featureDiv.className = 'feature-item';
+            if (isMobile) {
+                // Mobile: require double-tap
+                const currentTime = Date.now();
+                const timeSinceLastTap = currentTime - lastTapTime;
                 
-                const headerDiv = document.createElement('div');
-                headerDiv.className = 'feature-header';
-                headerDiv.textContent = `${feature.sourceLayer || 'Feature'} (${feature.geometry.type})`;
-                headerDiv.onclick = () => {
-                    const props = featureDiv.querySelector('.feature-properties');
-                    props.classList.toggle('collapsed');
-                };
-                
-                const propsDiv = document.createElement('div');
-                propsDiv.className = 'feature-properties';
-                
-                if (feature.properties && Object.keys(feature.properties).length > 0) {
-                    propsDiv.textContent = JSON.stringify(feature.properties, null, 2);
+                if (timeSinceLastTap < doubleTapDelay) {
+                    tapCount++;
+                    if (tapCount === 2) {
+                        // Double-tap detected, show properties
+                        showPropertiesPanel(features);
+                        tapCount = 0;
+                    }
                 } else {
-                    propsDiv.textContent = 'No properties';
+                    // Reset tap count for new sequence
+                    tapCount = 1;
                 }
                 
-                featureDiv.appendChild(headerDiv);
-                featureDiv.appendChild(propsDiv);
-                propertiesContent.appendChild(featureDiv);
-            });
-            
-            propertiesPanel.style.display = 'block';
+                lastTapTime = currentTime;
+                
+                // Reset tap count after delay if no second tap
+                setTimeout(() => {
+                    if (tapCount === 1 && Date.now() - lastTapTime >= doubleTapDelay) {
+                        tapCount = 0;
+                    }
+                }, doubleTapDelay);
+            } else {
+                // Desktop: single-tap shows properties
+                showPropertiesPanel(features);
+            }
         } else {
             propertiesPanel.style.display = 'none';
         }
