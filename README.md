@@ -89,6 +89,28 @@ mapterhorn-martin/
 - Vite-based local bundling / Vite による ローカルバンドリング（CDN依存なし）
 - Responsive design support / レスポンシブデザイン対応
 
+## 🔮 Future Plans / 今後の計画
+
+📋 **Planned Features / 予定されている機能:**
+
+1. **Protomaps Basemaps + Overture Buildings Integration / Protomaps Basemaps と Overture Buildings の統合**
+   - Merge Overture building and building_part layers into Protomaps Basemaps / Protomaps Basemaps に Overture の building および building_part レイヤを融合
+   - Enhanced building data precision and attribute utilization / 建築物データの高精度化と属性活用
+   - Improved map visualization with detailed building information / 詳細な建築物情報による地図表現の拡張
+   - Style modification using data sources / データソースを参照したスタイル改造:
+     - [Protomaps Basemap](https://tunnel.optgeo.org/martin/protomaps-basemap) - Vector base map tiles / ベクトルベースマップタイル
+     - [Buildings](https://tunnel.optgeo.org/martin/buildings) - Building data layers / 建築物データレイヤ
+
+2. **Building Highlighting System / 建築物ハイライト機能**
+   - URL-based building highlighting with `?building=xxx` query parameter / URL の `?building=xxx` クエリパラメータによる建築物ハイライト
+   - Utilize Overture building IDs for precise identification / Overture buildings の ID を活用した正確な識別
+   - Red highlighting for specified buildings / 指定された建築物の赤色ハイライト表示
+   - Enhanced user experience for building-specific navigation / 特定建築物への直接ナビゲーション機能
+
+**Background / 背景:**
+- Goal: Enhanced building data precision and improved attribute utilization for map visualization / 目標: 建築物データの高精度化と地図表現における属性活用の向上
+- Purpose: Enable users to highlight specific buildings via URL for better sharing and navigation / 目的: URL による特定建築物の強調表示機能でシェアとナビゲーションを改善
+
 ## 🏁 Getting Started / 使い方
 
 ### 🌐 Live Demo / ライブデモ
