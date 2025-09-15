@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { copyFileSync } from 'fs';
 
 export default defineConfig({
   root: 'src',
@@ -30,5 +31,15 @@ export default defineConfig({
   publicDir: false, // Disable copying public dir since we want to preserve existing docs files
   server: {
     open: true
-  }
+  },
+  plugins: [
+    {
+      name: 'copy-style-json',
+      writeBundle() {
+        // Copy src/style.json to docs/style.json after build
+        copyFileSync('src/style.json', 'docs/style.json');
+        console.log('✅ Copied src/style.json to docs/style.json');
+      }
+    }
+  ]
 });

@@ -1,6 +1,6 @@
 # mapterhorn-martin
 
-This project operates a fully self-hosted web map stack on a Raspberry Pi, combining self-hosted Protomaps Basemaps (vector tiles) and Mapterhorn terrain tiles.
+This project operates a fully self-hosted web map stack on a Raspberry Pi 4B, combining self-hosted Protomaps Basemaps (vector tiles) and Mapterhorn terrain tiles.
 
 本プロジェクトは、Raspberry Pi 上でセルフホストした Protomaps Basemaps（ベクトルタイル）と Mapterhorn（地形タイル）を組み合わせ、セルフホストされたウェブ地図を運用する構成です。
 
@@ -19,7 +19,7 @@ This project is a web-based 3D terrain visualization system utilizing Mapterhorn
 - **Purpose / 目的**: Implement and demonstrate 3D terrain visualization and hillshade effects using Mapterhorn terrain tiles / Mapterhorn の地形タイルを用い、Web上で三次元地形表示・陰影表現などを実装・デモすること
 - **Data Sources / データソース**: [tunnel.optgeo.org/martin/mapterhorn](https://tunnel.optgeo.org/martin/mapterhorn) (Terrarium) and [tunnel.optgeo.org/martin/gel](https://tunnel.optgeo.org/martin/gel) (Mapbox) / [tunnel.optgeo.org/martin/mapterhorn](https://tunnel.optgeo.org/martin/mapterhorn) (Terrarium) および [tunnel.optgeo.org/martin/gel](https://tunnel.optgeo.org/martin/gel) (Mapbox)
 - **Key Technologies / 主な技術**: MapLibre GL JS, WebGL
-- **Status / ステータス**: ✅ Implementation complete and operational / 実装完了・動作中
+- **Status / ステータス**: ✅ Implementation complete with advanced features / 高度な機能を備えた実装完了
 
 ## 🚀 Technical Stack / 技術スタック
 
@@ -132,6 +132,10 @@ The development server will automatically open your browser to view the terrain 
   - Drag / ドラッグ: Pan / パン
   - Scroll / スクロール: Zoom / ズーム
   - Ctrl+Drag / Ctrl+ドラッグ: 3D view rotation (when terrain is enabled) / 3D視点回転（地形ON時）
+- **URL Parameters / URLパラメータ**:
+  - `?building=id` - Highlight a specific building with golden color / 指定したIDの建物を黄金色でハイライト
+  - `?building=id1,id2,id3` - Highlight multiple buildings (comma-separated) / 複数建物をハイライト（カンマ区切り）
+  - Example / 例: `https://hfu.github.io/mapterhorn-martin/?building=abc123,def456`
 
 ## 🛠️ Development Guidelines / 開発ガイドライン
 
@@ -157,7 +161,7 @@ The development server will automatically open your browser to view the terrain 
 
 ### Testing & CI / テスト・CI
 
-- **Current Status / 現在のステータス**: Manual testing completed, functionality verified / 手動テスト完了、機能動作確認済み
+- **Current Status / 現在のステータス**: Manual testing completed, all features verified including multiple building highlighting and duplicate prevention / 手動テスト完了、全機能動作確認済み（複数建物ハイライト、重複防止を含む）
 - **Future Plans / 将来の計画**: Jest/Playwright automated testing framework planned / Jest/Playwright等の自動テストフレームワーク導入予定
 - **GitHub Actions**: Automated lint/build/test execution planned / Lint/ビルド/テストの自動実行設定予定
 

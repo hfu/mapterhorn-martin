@@ -34,21 +34,47 @@ function getUrlParameter(name) {
     return urlParams.get(name);
 }
 
-// Update building highlight filter based on URL parameter
+// Update building highlight by setting paint properties dynamically
 function updateBuildingHighlight(map) {
-    const buildingId = getUrlParameter('building');
-    const highlightFilter = buildingId ? ['==', 'id', buildingId] : ['==', 'id', '']; // No matches when no building ID
+    const buildingParam = getUrlParameter('building');
+    const buildingIds = buildingParam ? buildingParam.split(',').map(id => id.trim()) : [];
     
     try {
-        if (map.getLayer('buildings-highlight')) {
-            map.setFilter('buildings-highlight', highlightFilter);
-        }
-        if (map.getLayer('buildings-highlight-3d')) {
-            map.setFilter('buildings-highlight-3d', highlightFilter);
-        }
+        // Create color expression based on whether we have building IDs to highlight
+        const colorExpression = buildingIds.length > 0 ? [
+            "case",
+            ["in", ["get", "id"], ["literal", buildingIds]],
+            "#FFD700",
+            ["has", "facade_color"],
+            ["get", "facade_color"],
+            ["has", "roof_color"],
+            ["get", "roof_color"],
+            "#D2B48C"
+        ] : [
+            "case",
+            ["has", "facade_color"],
+            ["get", "facade_color"],
+            ["has", "roof_color"],
+            ["get", "roof_color"],
+            "#D2B48C"
+        ];
         
-        if (buildingId) {
-            console.log('Highlighting building:', buildingId);
+        // Update both regular and 3D building layers
+        const layers = ['buildings', 'building-parts', 'buildings-3d', 'building-parts-3d'];
+        layers.forEach(layerId => {
+            if (map.getLayer(layerId)) {
+                // For 3D layers, update fill-extrusion-color
+                if (layerId.includes('-3d')) {
+                    map.setPaintProperty(layerId, 'fill-extrusion-color', colorExpression);
+                } else {
+                    // For 2D layers, update fill-color
+                    map.setPaintProperty(layerId, 'fill-color', colorExpression);
+                }
+            }
+        });
+        
+        if (buildingIds.length > 0) {
+            console.log('Highlighting buildings:', buildingIds);
         }
     } catch (error) {
         console.warn('Could not update building highlight:', error);

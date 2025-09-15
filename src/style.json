@@ -1509,6 +1509,30 @@
       "type": "fill",
       "source": "overture-buildings",
       "source-layer": "building",
+      "minzoom": 13,
+      "maxzoom": 16,
+      "filter": [
+        "all",
+        ["==", "$type", "Polygon"]
+      ],
+      "paint": {
+        "fill-color": [
+          "case",
+          ["has", "facade_color"],
+          ["get", "facade_color"],
+          ["has", "roof_color"],
+          ["get", "roof_color"],
+          "#D2B48C"
+        ],
+        "fill-opacity": 0.7
+      }
+    },
+    {
+      "id": "building-parts",
+      "type": "fill",
+      "source": "overture-buildings",
+      "source-layer": "building_part",
+      "minzoom": 13,
       "maxzoom": 16,
       "filter": [
         "==",
@@ -1532,6 +1556,43 @@
       "type": "fill-extrusion",
       "source": "overture-buildings",
       "source-layer": "building",
+      "minzoom": 15,
+      "filter": [
+        "all",
+        ["==", "$type", "Polygon"],
+        ["!=", "has_parts", true]
+      ],
+      "paint": {
+        "fill-extrusion-color": [
+          "case",
+          ["has", "facade_color"],
+          ["get", "facade_color"],
+          ["has", "roof_color"],
+          ["get", "roof_color"],
+          "#D2B48C"
+        ],
+        "fill-extrusion-height": [
+          "case",
+          ["has", "height"],
+          ["get", "height"],
+          ["has", "num_floors"],
+          ["*", ["get", "num_floors"], 3],
+          6
+        ],
+        "fill-extrusion-base": [
+          "case",
+          ["has", "min_height"],
+          ["get", "min_height"],
+          0
+        ],
+        "fill-extrusion-opacity": 0.9
+      }
+    },
+    {
+      "id": "building-parts-3d",
+      "type": "fill-extrusion",
+      "source": "overture-buildings",
+      "source-layer": "building_part",
       "minzoom": 15,
       "filter": [
         "==",
@@ -1562,54 +1623,6 @@
           0
         ],
         "fill-extrusion-opacity": 0.9
-      }
-    },
-    {
-      "id": "buildings-highlight",
-      "type": "fill",
-      "source": "overture-buildings",
-      "source-layer": "building",
-      "maxzoom": 16,
-      "filter": [
-        "==",
-        "$type",
-        "Polygon"
-      ],
-      "paint": {
-        "fill-color": "#FFD700",
-        "fill-opacity": 0.7,
-        "fill-outline-color": "#FFFFFF"
-      }
-    },
-    {
-      "id": "buildings-highlight-3d",
-      "type": "fill-extrusion",
-      "source": "overture-buildings",
-      "source-layer": "building",
-      "minzoom": 15,
-      "filter": [
-        "==",
-        "$type",
-        "Polygon"
-      ],
-      "paint": {
-        "fill-extrusion-color": "#FFD700",
-        "fill-extrusion-height": [
-          "case",
-          ["has", "height"],
-          ["get", "height"],
-          ["has", "num_floors"],
-          ["*", ["get", "num_floors"], 3],
-          6
-        ],
-        "fill-extrusion-base": [
-          "case",
-          ["has", "min_height"],
-          ["get", "min_height"],
-          0
-        ],
-        "fill-extrusion-opacity": 0.9,
-        "fill-extrusion-vertical-gradient": true
       }
     },
     {
