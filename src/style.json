@@ -6,6 +6,11 @@
       "attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> \u00a9 <a href=\"https://openstreetmap.org\">OpenStreetMap</a>",
       "url": "https://tunnel.optgeo.org/martin/protomaps-basemap"
     },
+    "overture-buildings": {
+      "type": "vector",
+      "attribution": "<a href=\"https://docs.overturemaps.org/attribution\">&copy; Overture Maps Foundation</a>",
+      "url": "https://tunnel.optgeo.org/martin/buildings"
+    },
     "mapterhorn-terrain": {
       "type": "raster-dem",
       "url": "https://tunnel.optgeo.org/martin/mapterhorn",
@@ -1502,38 +1507,52 @@
     {
       "id": "buildings",
       "type": "fill",
-      "source": "protomaps",
-      "source-layer": "buildings",
-      "maxzoom": 15,
+      "source": "overture-buildings",
+      "source-layer": "building",
+      "maxzoom": 16,
       "filter": [
-        "in",
-        "kind",
-        "building",
-        "building_part"
+        "==",
+        "$type",
+        "Polygon"
       ],
       "paint": {
-        "fill-color": "#D2B48C",
-        "fill-opacity": 0.5
+        "fill-color": [
+          "case",
+          ["has", "facade_color"],
+          ["get", "facade_color"],
+          ["has", "roof_color"],
+          ["get", "roof_color"],
+          "#D2B48C"
+        ],
+        "fill-opacity": 0.7
       }
     },
     {
       "id": "buildings-3d",
       "type": "fill-extrusion",
-      "source": "protomaps",
-      "source-layer": "buildings",
+      "source": "overture-buildings",
+      "source-layer": "building",
       "minzoom": 15,
       "filter": [
-        "in",
-        "kind",
-        "building",
-        "building_part"
+        "==",
+        "$type",
+        "Polygon"
       ],
       "paint": {
-        "fill-extrusion-color": "#D2B48C",
+        "fill-extrusion-color": [
+          "case",
+          ["has", "facade_color"],
+          ["get", "facade_color"],
+          ["has", "roof_color"],
+          ["get", "roof_color"],
+          "#D2B48C"
+        ],
         "fill-extrusion-height": [
           "case",
           ["has", "height"],
           ["get", "height"],
+          ["has", "num_floors"],
+          ["*", ["get", "num_floors"], 3],
           6
         ],
         "fill-extrusion-base": [
@@ -1542,7 +1561,55 @@
           ["get", "min_height"],
           0
         ],
-        "fill-extrusion-opacity": 0.8
+        "fill-extrusion-opacity": 0.9
+      }
+    },
+    {
+      "id": "buildings-highlight",
+      "type": "fill",
+      "source": "overture-buildings",
+      "source-layer": "building",
+      "maxzoom": 16,
+      "filter": [
+        "==",
+        "$type",
+        "Polygon"
+      ],
+      "paint": {
+        "fill-color": "#FFD700",
+        "fill-opacity": 0.7,
+        "fill-outline-color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "buildings-highlight-3d",
+      "type": "fill-extrusion",
+      "source": "overture-buildings",
+      "source-layer": "building",
+      "minzoom": 15,
+      "filter": [
+        "==",
+        "$type",
+        "Polygon"
+      ],
+      "paint": {
+        "fill-extrusion-color": "#FFD700",
+        "fill-extrusion-height": [
+          "case",
+          ["has", "height"],
+          ["get", "height"],
+          ["has", "num_floors"],
+          ["*", ["get", "num_floors"], 3],
+          6
+        ],
+        "fill-extrusion-base": [
+          "case",
+          ["has", "min_height"],
+          ["get", "min_height"],
+          0
+        ],
+        "fill-extrusion-opacity": 0.9,
+        "fill-extrusion-vertical-gradient": true
       }
     },
     {

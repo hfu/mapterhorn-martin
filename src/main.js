@@ -28,6 +28,33 @@ async function initializeApp() {
     }
 }
 
+// Parse URL parameters for building highlighting
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// Update building highlight filter based on URL parameter
+function updateBuildingHighlight(map) {
+    const buildingId = getUrlParameter('building');
+    const highlightFilter = buildingId ? ['==', 'id', buildingId] : ['==', 'id', '']; // No matches when no building ID
+    
+    try {
+        if (map.getLayer('buildings-highlight')) {
+            map.setFilter('buildings-highlight', highlightFilter);
+        }
+        if (map.getLayer('buildings-highlight-3d')) {
+            map.setFilter('buildings-highlight-3d', highlightFilter);
+        }
+        
+        if (buildingId) {
+            console.log('Highlighting building:', buildingId);
+        }
+    } catch (error) {
+        console.warn('Could not update building highlight:', error);
+    }
+}
+
 // Start the application
 initializeApp();
 
@@ -211,6 +238,7 @@ function initializeMap(style) {
     // Enable terrain when map loads
     window.map.on('load', () => {
         setTerrainFromSource('mapterhorn-terrain');
+        updateBuildingHighlight(window.map); // Initialize building highlighting
         console.log('Mapterhorn Terrain Visualization initialized');
         console.log('Data source: https://tunnel.optgeo.org/martin/mapterhorn');
         console.log('Encoding: Terrarium format');
