@@ -97,6 +97,9 @@ mapterhorn-martin/
    - Merge Overture building and building_part layers into Protomaps Basemaps / Protomaps Basemaps に Overture の building および building_part レイヤを融合
    - Enhanced building data precision and attribute utilization / 建築物データの高精度化と属性活用
    - Improved map visualization with detailed building information / 詳細な建築物情報による地図表現の拡張
+   - Style modification using data sources / データソースを参照したスタイル改造:
+     - [Protomaps Basemap](https://tunnel.optgeo.org/martin/protomaps-basemap) - Vector base map tiles / ベクトルベースマップタイル
+     - [Buildings](https://tunnel.optgeo.org/martin/buildings) - Building data layers / 建築物データレイヤ
 
 2. **Building Highlighting System / 建築物ハイライト機能**
    - URL-based building highlighting with `?building=xxx` query parameter / URL の `?building=xxx` クエリパラメータによる建築物ハイライト
