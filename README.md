@@ -85,6 +85,7 @@ mapterhorn-martin/
 4. **Feature Property Display / 地物プロパティ表示**: Detailed information display on click / クリックによる詳細情報表示
 5. **Overture Buildings Integration / Overture Buildings 統合**: Replaced Protomaps buildings with detailed Overture buildings featuring facade_color, roof_color, and height attributes / Protomaps の建築物を facade_color, roof_color, height 属性を持つ詳細な Overture 建築物に置き換え
 6. **Building Highlighting System / 建築物ハイライト機能**: URL-based building highlighting with golden color effects for enhanced navigation / URL パラメータによる黄金色ハイライト表示でナビゲーションを強化
+7. **Geolocation Control / 位置情報コントロール**: User's current location tracking with high accuracy positioning / 高精度位置情報によるユーザーの現在位置追跡
 
 **Implementation Architecture / 実装アーキテクチャ:**
 - Separated HTML/CSS structure / HTML/CSS 分離構成 (`docs/index.html` + `docs/main.css`)

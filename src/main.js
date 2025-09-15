@@ -100,10 +100,7 @@ function setupControls() {
         } else {
             terrainControls.classList.add('show');
             menuToggle.classList.add('active');
-            // Prevent body scroll when menu is open on mobile
-            if (window.innerWidth <= 768) {
-                document.body.style.overflow = 'hidden';
-            }
+            document.body.style.overflow = 'hidden';
         }
     }
     
@@ -115,23 +112,12 @@ function setupControls() {
         closeControls.addEventListener('click', toggleMenu);
     }
     
-    // Close menu when clicking outside on mobile
+    // Close menu when clicking outside
     document.addEventListener('click', function(event) {
-        if (window.innerWidth <= 768 && 
-            terrainControls.classList.contains('show') && 
+        if (terrainControls.classList.contains('show') && 
             !terrainControls.contains(event.target) && 
             !menuToggle.contains(event.target)) {
             toggleMenu();
-        }
-    });
-    
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            // Reset mobile menu state when resizing to desktop
-            terrainControls.classList.remove('show');
-            menuToggle.classList.remove('active');
-            document.body.style.overflow = '';
         }
     });
 
@@ -198,6 +184,15 @@ function initializeMap(style) {
         visualizePitch: true,
         showZoom: true,
         showCompass: true
+    }));
+
+    // Add geolocation control (user's current location)
+    window.map.addControl(new maplibregl.GeolocateControl({
+        positionOptions: {
+            enableHighAccuracy: true
+        },
+        trackUserLocation: true,
+        showUserHeading: true
     }));
 
     window.map.addControl(new maplibregl.GlobeControl());
